@@ -22,20 +22,24 @@ export function* uploadFile(action) {
 }
 
 function* uploadPhoto(authenticateResult, link, photo, parentDir) {
-  const uploadImgResult = yield call(
-    uploadRNFB,
-    authenticateResult,
-    link,
-    photo.contentUri,
-    photo.fileName,
-    parentDir,
-  );
-  if (uploadImgResult) {
-    console.log(`${photo.fileName} is uploaded`);
-    console.log(uploadImgResult);
-    const photos = yield retrievePhotos();
-    yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
-    console.log(`${photos.length} photos left`);
+  try {
+    const uploadImgResult = yield call(
+      uploadRNFB,
+      authenticateResult,
+      link,
+      photo.contentUri,
+      photo.fileName,
+      parentDir,
+    );
+    if (uploadImgResult) {
+      console.log(`${photo.fileName} is uploaded`);
+      console.log(uploadImgResult);
+      const photos = yield retrievePhotos();
+      yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
+      console.log(`${photos.length} photos left`);
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -45,19 +49,23 @@ export function* batchUpload(action) {
   const { destinationLibrary, parentDir } = yield select(state => state.library);
 
   yield call(delay, 2000);
-  const files = yield call(
-    getDirectories,
-    server,
-    authenticateResult,
-    destinationLibrary.id,
-    parentDir,
-    'f',
-  );
-  const photos = yield retrievePhotos();
-  const waitingList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
-  storePhotos(waitingList);
-  for (let i = 0; i < waitingList.length; i += 1) {
-    yield put(UploadActions.uploadFile(waitingList[i]));
-    yield call(delay, 1500);
+  try {
+    const files = yield call(
+      getDirectories,
+      server,
+      authenticateResult,
+      destinationLibrary.id,
+      parentDir,
+      'f',
+    );
+    const photos = yield retrievePhotos();
+    const waitingList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
+    storePhotos(waitingList);
+    for (let i = 0; i < waitingList.length; i += 1) {
+      yield put(UploadActions.uploadFile(waitingList[i]));
+      yield call(delay, 1500);
+    }
+  } catch (e) {
+    console.log(e);
   }
 }

@@ -95,11 +95,27 @@ class CameraScreen extends React.Component {
   };
 
   _handleConnectionChange = (connectionInfo) => {
-    const { batchUpload } = this.props;
+    const { batchUpload, netOption } = this.props;
     console.log(connectionInfo);
+    console.log(netOption);
+
     retrievePhotos().then((photos) => {
-      if (photos && photos.length > 0 && connectionInfo.type === 'wifi') {
-        batchUpload(photos);
+      if (photos && photos.length > 0) {
+        switch (netOption) {
+          case 'Wifi only':
+            if (connectionInfo.type === 'wifi') {
+              console.log('Wifi only');
+              batchUpload(photos);
+            }
+            break;
+          case 'Cellular':
+            if (connectionInfo.type === 'wifi' || connectionInfo.type === 'cellular') {
+              batchUpload(photos);
+            }
+            break;
+          default:
+            break;
+        }
       }
       this.setState({
         netInfo: connectionInfo.type,
@@ -172,8 +188,25 @@ class CameraScreen extends React.Component {
   };
 
   uploadToKeeper = (photoDTO) => {
-    const { uploadFile } = this.props;
-    uploadFile(photoDTO);
+    const { uploadFile, netOption } = this.props;
+    const { netInfo } = this.state;
+    console.log(netInfo);
+    console.log(netOption);
+    switch (netOption) {
+      case 'Wifi only':
+        if (netInfo === 'wifi') {
+          console.log('Wifi only');
+          uploadFile(photoDTO);
+        }
+        break;
+      case 'Cellular':
+        if (netInfo === 'wifi' || netInfo === 'cellular') {
+          uploadFile(photoDTO);
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   saveToCameraRoll = (image) => {
@@ -345,6 +378,7 @@ class CameraScreen extends React.Component {
             onSelectLibrary={this.onSelectLibrary}
             destination={this.destination()}
             logout={this.logout}
+            setNetOption={this.props.setNetOption}
           />
         )}
         {this.renderCamera()}
@@ -361,6 +395,8 @@ CameraScreen.propTypes = {
   // photos: PropTypes.array.isRequired,
   // setPhotos: PropTypes.func.isRequired,
   setAuthenticateResult: PropTypes.func.isRequired,
+  setNetOption: PropTypes.func.isRequired,
+  netOption: PropTypes.string.isRequired,
   navigation: PropTypes.object.isRequired,
   destinationLibrary: PropTypes.object,
   nav: PropTypes.object.isRequired,
@@ -371,6 +407,7 @@ const mapStateToProps = state => ({
   libraries: state.library.libraries,
   destinationLibrary: state.library.destinationLibrary,
   paths: state.library.paths,
+  netOption: state.upload.netOption,
   // photos: state.upload.photos,
   nav: state.nav,
 });
@@ -383,6 +420,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(LibraryActions.setDestinationLibrary(destinationLibrary)),
   // setPhotos: photos => dispatch(UploadActions.setPhotos(photos)),
   setAuthenticateResult: result => dispatch(AccountsActions.setAuthenticateResult(result)),
+  setNetOption: netOption => dispatch(UploadActions.setNetOption(netOption)),
 });
 
 export default connect(

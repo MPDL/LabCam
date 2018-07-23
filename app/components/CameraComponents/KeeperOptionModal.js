@@ -22,6 +22,7 @@ export default class KeeperOptionModal extends React.Component {
     this.setState({
       network: this.state.network === 'Wifi only' ? 'Cellular' : 'Wifi only',
     });
+    this.props.setNetOption(this.state.network === 'Wifi only' ? 'Cellular' : 'Wifi only');
   };
 
   renderRow = (rowData, rowID, highlighted) => (
@@ -72,6 +73,7 @@ KeeperOptionModal.propTypes = {
   destination: PropTypes.string.isRequired,
   onSelectLibrary: PropTypes.func.isRequired,
   logout: PropTypes.func.isRequired,
+  setNetOption: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
   },
   networkRow: {
     paddingHorizontal: 9,
-    paddingVertical: CamFonts.normalize(8),
+    paddingVertical: CamFonts.normalize(4),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

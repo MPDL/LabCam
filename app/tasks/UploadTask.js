@@ -1,4 +1,4 @@
-import { AsyncStorage, AppState } from 'react-native';
+import { AsyncStorage, AppState, NetInfo } from 'react-native';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import {
   retrievePhotos,
@@ -34,6 +34,20 @@ const UploadTask = async (data) => {
         const libraryPersist = JSON.parse(library);
         repo = libraryPersist.destinationLibrary.id;
         parentDir = libraryPersist.parentDir;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    try {
+      const upload = await AsyncStorage.getItem('reduxPersist:upload');
+      if (upload !== null) {
+        const uploadPersist = JSON.parse(upload);
+        const netOpt = uploadPersist.netOption;
+        const netInfo = await NetInfo.getConnectionInfo();
+
+        if (netInfo.type === 'none' || netInfo.type === 'unknown') return;
+        if (netInfo.type === 'cellular' && netOpt === 'Wifi only') return;
       }
     } catch (error) {
       console.log(error);

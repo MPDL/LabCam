@@ -70,7 +70,6 @@ class LibraryScreen extends Component {
   getDirectories = (library, paths) => {
     const { fetchDirectories } = this.props;
     console.log(`paths${paths}`);
-    if (this.state.netInfo === 'none') return;
     fetchDirectories(library, paths);
   };
 
@@ -122,7 +121,6 @@ class LibraryScreen extends Component {
   };
 
   selectDirectory = directory => () => {
-    if (this.state.netInfo === 'none') return;
     const { selectDirectories } = this.props;
     const mutableDirectory = Immutable.asMutable(directory, { deep: true });
     const curPaths = [...mutableDirectory.path, directory];
