@@ -1,0 +1,10 @@
+[debug] [2018-06-13T05:31:40.489Z] ----------------------------------------------------------------------
+[debug] [2018-06-13T05:31:40.491Z] Command:       /Users/yingli/.nvm/versions/node/v8.4.0/bin/node /Users/yingli/.nvm/versions/node/v8.4.0/bin/firebase init
+[debug] [2018-06-13T05:31:40.491Z] CLI Version:   3.18.6
+[debug] [2018-06-13T05:31:40.491Z] Platform:      darwin
+[debug] [2018-06-13T05:31:40.491Z] Node Version:  v8.4.0
+[debug] [2018-06-13T05:31:40.492Z] Time:          Wed Jun 13 2018 07:31:40 GMT+0200 (CEST)
+[debug] [2018-06-13T05:31:40.492Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-06-13T05:31:40.504Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase"]
+[debug] [2018-06-13T05:31:40.504Z] > attempting to authenticate via app default credentials
