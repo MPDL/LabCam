@@ -6,7 +6,10 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 import logoImg from '../../images/icon_app.png';
 
 const ANIMATION_DURATION = 250;
-const imageWidth = Dimensions.get('window').width / 4;
+const imageWidth =
+  Dimensions.get('window').width < Dimensions.get('window').height
+    ? Dimensions.get('window').width / 4
+    : Dimensions.get('window').height / 4;
 
 const styles = EStyleSheet.create({
   $smallContainerSize: imageWidth / 1.5,

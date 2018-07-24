@@ -1,28 +1,25 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
+
 import { View, TouchableHighlight, StyleSheet, StatusBar } from 'react-native';
 import Triangle from 'react-native-triangle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+import UploadActions from '../../redux/UploadRedux';
 import { SmallText } from '../../common/CamText';
 import CamColors from '../../common/CamColors';
 import CamFonts from '../../common/CamFonts';
 
-export default class KeeperOptionModal extends React.Component {
+class KeeperOptionModal extends React.Component {
   constructor(props) {
     super();
     this.props = props;
-
-    this.state = {
-      network: 'Wifi only',
-    };
   }
 
   toggleNetwork = () => {
-    this.setState({
-      network: this.state.network === 'Wifi only' ? 'Cellular' : 'Wifi only',
-    });
-    this.props.setNetOption(this.state.network === 'Wifi only' ? 'Cellular' : 'Wifi only');
+    const { setNetOption, netOption } = this.props;
+    setNetOption(netOption === 'Wifi only' ? 'Cellular' : 'Wifi only');
   };
 
   renderRow = (rowData, rowID, highlighted) => (
@@ -56,7 +53,7 @@ export default class KeeperOptionModal extends React.Component {
           <View style={styles.networkRow}>
             <SmallText style={styles.networkOptionText}>Upload Photos to Keeper over</SmallText>
             <SmallText style={styles.networkOption} onPress={this.toggleNetwork}>
-              {`${this.state.network} `}
+              {`${this.props.netOption} `}
               <Icon name="arrow-drop-down" size={16} />
             </SmallText>
           </View>
@@ -74,6 +71,7 @@ KeeperOptionModal.propTypes = {
   onSelectLibrary: PropTypes.func.isRequired,
   logout: PropTypes.func.isRequired,
   setNetOption: PropTypes.func.isRequired,
+  netOption: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -135,3 +133,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+const mapStateToProps = state => ({
+  netOption: state.upload.netOption,
+});
+
+const mapDispatchToProps = dispatch => ({
+  setNetOption: netOption => dispatch(UploadActions.setNetOption(netOption)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(KeeperOptionModal);

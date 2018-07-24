@@ -13,7 +13,6 @@ import com.facebook.react.HeadlessJsTaskService;
 import java.util.List;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
-    private static boolean firstConnect = true;
     @Override
     public void onReceive(final Context context, final Intent intent) {
 
@@ -21,6 +20,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
          This part will be called everytime network connection is changed
          e.g. Connected -> Not Connected
          **/
+        Log.e("NetworkChangeReceiver", String.valueOf(isNetworkAvailable(context)));
         if (!isAppOnForeground((context))) {
             /**
              We will start our service and send extra info about

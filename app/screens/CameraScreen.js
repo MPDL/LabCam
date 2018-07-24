@@ -378,7 +378,7 @@ class CameraScreen extends React.Component {
             onSelectLibrary={this.onSelectLibrary}
             destination={this.destination()}
             logout={this.logout}
-            setNetOption={this.props.setNetOption}
+            // setNetOption={this.props.setNetOption}
           />
         )}
         {this.renderCamera()}

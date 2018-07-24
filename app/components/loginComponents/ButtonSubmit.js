@@ -15,7 +15,11 @@ import { connect } from 'react-redux';
 import spinner from '../../images/loading_grey.gif';
 import AccountsActions from '../../redux/AccountsRedux';
 
-const DEVICE_WIDTH = Dimensions.get('window').width;
+const DEVICE_WIDTH =
+  Dimensions.get('window').width < Dimensions.get('window').height
+    ? Dimensions.get('window').width
+    : Dimensions.get('window').height;
+
 const MARGIN = 40;
 const styles = StyleSheet.create({
   container: {

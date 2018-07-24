@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Dimensions, Text, StyleSheet } from 'react-native';
 
@@ -14,17 +13,14 @@ class Server extends Component {
 
   render() {
     const { width, height } = Dimensions.get('window');
-    const textStyle = this.props.isLandscape
-      ? [styles.serverText, { marginLeft: 24 + (width - height) / 2 }]
-      : [styles.serverText, { marginLeft: 24 }];
+    const textStyle =
+      width > height
+        ? [styles.serverText, { marginLeft: 24 + (width - height) / 2 }]
+        : [styles.serverText, { marginLeft: 36 }];
     return <Text style={textStyle}>{this.state.server}</Text>;
     // return <Image style={styles.keeper} source={keeper} />;
   }
 }
-
-Server.propTypes = {
-  isLandscape: PropTypes.bool.isRequired,
-};
 
 const styles = StyleSheet.create({
   serverText: {
@@ -32,6 +28,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     marginLeft: 24,
     marginVertical: 10,
+    alignSelf: 'flex-start',
   },
   keeper: {
     height: 23,

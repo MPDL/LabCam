@@ -1,6 +1,9 @@
 import { Platform, Dimensions } from 'react-native';
 
-const DEVICE_SCALE = Dimensions.get('window').width / 375;
+const DEVICE_SCALE =
+  Dimensions.get('window').width < Dimensions.get('window').height
+    ? Dimensions.get('window').width / 375
+    : Dimensions.get('window').height / 375;
 
 const DEFAULT_FONT = 'helvetica';
 const SECONDARY_FONT = Platform.OS === 'android' ? 'basis' : 'helvetica';

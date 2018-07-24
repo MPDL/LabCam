@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, TextInput, Image, Dimensions } from 'react-native';
 
-const DEVICE_WIDTH = Dimensions.get('window').width;
+const DEVICE_WIDTH =
+  Dimensions.get('window').width < Dimensions.get('window').height
+    ? Dimensions.get('window').width
+    : Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   input: {

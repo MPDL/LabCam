@@ -16,58 +16,71 @@ let parentDir;
 let link;
 
 const UploadTask = async (data) => {
-  if (data.hasInternet) {
-    try {
-      const accounts = await AsyncStorage.getItem('reduxPersist:accounts');
-      if (accounts !== null) {
-        const accountsPersist = JSON.parse(accounts);
-        server = accountsPersist.server;
-        credentials = accountsPersist.authenticateResult;
-      }
-    } catch (error) {
-      console.log(error);
+  try {
+    const accounts = await AsyncStorage.getItem('reduxPersist:accounts');
+    if (accounts !== null) {
+      const accountsPersist = JSON.parse(accounts);
+      server = accountsPersist.server;
+      credentials = accountsPersist.authenticateResult;
+      console.log(server + credentials);
     }
+  } catch (error) {
+    console.log(error);
+  }
 
-    try {
-      const library = await AsyncStorage.getItem('reduxPersist:library');
-      if (library !== null) {
-        const libraryPersist = JSON.parse(library);
-        repo = libraryPersist.destinationLibrary.id;
-        parentDir = libraryPersist.parentDir;
-      }
-    } catch (error) {
-      console.log(error);
+  try {
+    const library = await AsyncStorage.getItem('reduxPersist:library');
+    if (library !== null) {
+      const libraryPersist = JSON.parse(library);
+      repo = libraryPersist.destinationLibrary.id;
+      parentDir = libraryPersist.parentDir;
+      console.log(repo + parentDir);
     }
+  } catch (error) {
+    console.log(error);
+  }
 
-    try {
-      const upload = await AsyncStorage.getItem('reduxPersist:upload');
-      if (upload !== null) {
-        const uploadPersist = JSON.parse(upload);
-        const netOpt = uploadPersist.netOption;
-        const netInfo = await NetInfo.getConnectionInfo();
+  try {
+    const upload = await AsyncStorage.getItem('reduxPersist:upload');
+    if (upload !== null) {
+      const uploadPersist = JSON.parse(upload);
+      const netOpt = uploadPersist.netOption;
+      const netInfo = await NetInfo.getConnectionInfo();
+      console.log(netInfo.type);
+      console.log(netOpt);
 
-        if (netInfo.type === 'none' || netInfo.type === 'unknown') return;
-        if (netInfo.type === 'cellular' && netOpt === 'Wifi only') return;
-      }
-    } catch (error) {
-      console.log(error);
+      if (netInfo.type === 'none' || netInfo.type === 'unknown') return;
+      if (netInfo.type === 'cellular' && netOpt === 'Wifi only') return;
     }
+  } catch (error) {
+    console.log(error);
+  }
 
+  try {
     link = await getUploadLink(repo, server, credentials);
+    console.log(link);
+  } catch (e) {
+    console.log(e);
+  }
 
-    try {
-      const photos = await retrievePhotos();
-      const uploadedPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
-      const ocrWaitingList = photos.filter(element => !uploadedPhotos.map(file => file.name).includes(element.fileName));
-      await storePhotos(ocrWaitingList);
-      if (ocrWaitingList && ocrWaitingList.length > 0) {
-        uploadPhoto(ocrWaitingList[0]);
-      } else {
-        uploadOcr();
-      }
-    } catch (error) {
-      console.log(error);
+  try {
+    const photos = await retrievePhotos();
+    console.log('photos');
+    const uploadedPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
+    console.log('uploadedPhotos');
+    const ocrWaitingList = photos.filter(element => !uploadedPhotos.map(file => file.name).includes(element.fileName));
+    console.log('ocrWaitingList');
+    console.log(ocrWaitingList);
+    await storePhotos(ocrWaitingList);
+    if (ocrWaitingList && ocrWaitingList.length > 0) {
+      uploadPhoto(ocrWaitingList[0]);
+      console.log('loguploadPhoto');
+    } else {
+      uploadOcr();
+      console.log('uploadOcr');
     }
+  } catch (error) {
+    console.log(error);
   }
 };
 

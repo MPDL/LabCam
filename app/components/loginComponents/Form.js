@@ -12,14 +12,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 120,
   },
-  checkBoxText: {
-    color: 'white',
-  },
-  checkBoxContainer: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    paddingHorizontal: 32,
-  },
 });
 
 export default class Form extends Component {

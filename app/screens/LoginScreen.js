@@ -138,9 +138,14 @@ class LoginScreen extends Component {
     return (
       <Wallpaper onLayout={this.onLayout}>
         <StatusBar translucent barStyle="light-content" />
-        <KeyboardAvoidingView behavior="padding">
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={{
+            alignItems: 'center',
+          }}
+        >
           <Logo isLandscape={this.state.isLandscape} />
-          <Server isLandscape={this.state.isLandscape} />
+          <Server />
           <Form
             account={this.state.account}
             onAccountChange={this.onAccountChange}
