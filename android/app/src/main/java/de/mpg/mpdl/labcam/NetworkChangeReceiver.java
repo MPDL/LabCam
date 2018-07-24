@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import com.facebook.react.HeadlessJsTaskService;
@@ -13,6 +15,7 @@ import com.facebook.react.HeadlessJsTaskService;
 import java.util.List;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
+
     @Override
     public void onReceive(final Context context, final Intent intent) {
 
@@ -20,18 +23,43 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
          This part will be called everytime network connection is changed
          e.g. Connected -> Not Connected
          **/
-        Log.e("NetworkChangeReceiver", String.valueOf(isNetworkAvailable(context)));
         if (!isAppOnForeground((context))) {
             /**
              We will start our service and send extra info about
              network connections
              **/
-            boolean hasInternet = isNetworkAvailable(context);
-            if (hasInternet) {
-                Intent serviceIntent = new Intent(context, MyTaskService.class);
-                serviceIntent.putExtra("hasInternet", hasInternet);
-                context.startService(serviceIntent);
-                HeadlessJsTaskService.acquireWakeLockNow(context);
+
+            if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+
+                ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+                if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE &&
+                    networkInfo.isConnected()) {
+                    // cellular is connected
+                    Log.e("NetworkChangeReceiver", " -- Cellular connected --- " );
+                    startService(context, "cellular");
+                }
+            }
+            else if (intent.getAction().equalsIgnoreCase(WifiManager.WIFI_STATE_CHANGED_ACTION))
+            {
+                int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+                if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
+                    Log.e("NetworkChangeReceiver", " ----- Wifi  Disconnected ----- ");
+                    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+                    if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE &&
+                            networkInfo.isConnected()) {
+                        // cellular is connected
+                        Log.e("NetworkChangeReceiver", " -- Cellular connected --- " );
+                        startService(context, "cellular");
+
+                    }
+                } else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
+                    // Wifi is connected
+                    Log.e("NetworkChangeReceiver", " -- Wifi connected --- ");
+                    startService(context, "wifi");
+                }
             }
         }
     }
@@ -58,10 +86,16 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         return false;
     }
 
-    public static boolean isNetworkAvailable(Context context) {
-        ConnectivityManager cm = (ConnectivityManager)
-        context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo != null && netInfo.isConnected());
+    public static void startService(final Context context, final String internetType) {
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Intent serviceIntent = new Intent(context, MyTaskService.class);
+                        serviceIntent.putExtra("internetType", internetType);
+                        context.startService(serviceIntent);
+                        HeadlessJsTaskService.acquireWakeLockNow(context);
+                    }
+                }, 2000);
     }
 }

@@ -29,7 +29,7 @@ import {
   retrieveOcrPhotos,
   storeOcrPhotos,
 } from '../storage/DbHelper';
-import { startService, stopService, startOcrService } from '../tasks/OcrHelper';
+import { startService, stopService } from '../tasks/OcrHelper';
 
 const flashModeOrder = {
   off: 'on',
@@ -85,7 +85,6 @@ class CameraScreen extends React.Component {
   getRatios = async () => {
     const ratios = await this.camera.getSupportedRatiosAsync();
     Alert.alert('Ratios', ratios.join());
-    startOcrService();
   };
 
   setFocusDepth = (depth) => {
@@ -395,7 +394,6 @@ CameraScreen.propTypes = {
   // photos: PropTypes.array.isRequired,
   // setPhotos: PropTypes.func.isRequired,
   setAuthenticateResult: PropTypes.func.isRequired,
-  setNetOption: PropTypes.func.isRequired,
   netOption: PropTypes.string.isRequired,
   navigation: PropTypes.object.isRequired,
   destinationLibrary: PropTypes.object,

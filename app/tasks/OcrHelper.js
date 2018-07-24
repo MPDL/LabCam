@@ -1,6 +1,5 @@
 import RNTesseractOcr from 'react-native-tesseract-ocr';
 import RNFS from 'react-native-fs';
-import { test } from '../tasks/UploadTask';
 
 const tessOptions = {
   whitelist: null,
@@ -52,8 +51,4 @@ export const startService = async () => {
 
 export const stopService = async () => {
   await RNTesseractOcr.stopService();
-};
-
-export const startOcrService = async () => {
-  await RNTesseractOcr.startOcrService();
 };

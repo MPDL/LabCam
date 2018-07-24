@@ -1,4 +1,4 @@
-import { AsyncStorage, AppState, NetInfo } from 'react-native';
+import { AsyncStorage, AppState } from 'react-native';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import {
   retrievePhotos,
@@ -16,6 +16,20 @@ let parentDir;
 let link;
 
 const UploadTask = async (data) => {
+  try {
+    const upload = await AsyncStorage.getItem('reduxPersist:upload');
+    if (upload !== null) {
+      const uploadPersist = JSON.parse(upload);
+      const netOpt = uploadPersist.netOption;
+      console.log(`internetType: ${data.internetType}`);
+      console.log(`netOpt: ${netOpt}`);
+
+      if (data.internetType === 'cellular' && netOpt === 'Wifi only') return;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
   try {
     const accounts = await AsyncStorage.getItem('reduxPersist:accounts');
     if (accounts !== null) {
@@ -35,22 +49,6 @@ const UploadTask = async (data) => {
       repo = libraryPersist.destinationLibrary.id;
       parentDir = libraryPersist.parentDir;
       console.log(repo + parentDir);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  try {
-    const upload = await AsyncStorage.getItem('reduxPersist:upload');
-    if (upload !== null) {
-      const uploadPersist = JSON.parse(upload);
-      const netOpt = uploadPersist.netOption;
-      const netInfo = await NetInfo.getConnectionInfo();
-      console.log(netInfo.type);
-      console.log(netOpt);
-
-      if (netInfo.type === 'none' || netInfo.type === 'unknown') return;
-      if (netInfo.type === 'cellular' && netOpt === 'Wifi only') return;
     }
   } catch (error) {
     console.log(error);
@@ -132,6 +130,9 @@ const uploadNext = async (photo) => {
   const ocrPath = await recognizeOcr(photo.contentUri, photo.fileName);
   console.log('recognizeOcr:');
   console.log(ocrPath);
+  const ocrFiles = await getDirectories(server, credentials, repo, parentDir, 'f');
+  if (ocrFiles.map(file => file.name).includes(photo.fileName)) return; // another task is running
+
   const uploadOCR = await uploadRNFB(credentials, link, ocrPath, photo.fileName, parentDir);
   console.log(`uploadOCR: ${photo.fileName} ${uploadOCR}`);
   if (uploadOCR) {
