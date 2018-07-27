@@ -48,7 +48,7 @@ export function* batchUpload(action) {
   const { server, authenticateResult } = yield select(state => state.accounts);
   const { destinationLibrary, parentDir } = yield select(state => state.library);
 
-  yield call(delay, 2000);
+  yield call(delay, 10000);
   try {
     const files = yield call(
       getDirectories,

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
   StatusBar,
   SafeAreaView,
-  StyleSheet,
   Image,
   Text,
   View,
@@ -18,18 +17,21 @@ import { connect } from 'react-redux';
 import { NavigationActions } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MIcon from 'react-native-vector-icons/MaterialIcons';
-import AccountsActions from '../redux/AccountsRedux';
-import UploadActions from '../redux/UploadRedux';
-import LibraryActions from '../redux/LibraryRedux';
-import KeeperOptionModal from '../components/CameraComponents/KeeperOptionModal';
-import KeeperIcon from '../images/keeper.png';
+import AccountsActions from '../../redux/AccountsRedux';
+import UploadActions from '../../redux/UploadRedux';
+import LibraryActions from '../../redux/LibraryRedux';
+import KeeperIcon from '../../images/keeper.png';
 import {
   retrievePhotos,
   storePhotos,
   retrieveOcrPhotos,
   storeOcrPhotos,
-} from '../storage/DbHelper';
-import { startService, stopService } from '../tasks/OcrHelper';
+} from '../../storage/DbHelper';
+import { startService, stopService } from '../../tasks/OcrHelper';
+import CamColors from '../../common/CamColors';
+import styles from './styles';
+import OcrModal from '../../components/CameraComponents/OcrModal';
+import KeeperOptionModal from '../../components/CameraComponents/KeeperOptionModal';
 
 const flashModeOrder = {
   off: 'on',
@@ -61,6 +63,9 @@ class CameraScreen extends React.Component {
     isCameraReady: true,
     netInfo: '',
     appState: AppState.currentState,
+    ocrEnable: false,
+    ocrText: '',
+    dateTime: 0,
   };
 
   componentDidMount() {
@@ -157,6 +162,30 @@ class CameraScreen extends React.Component {
     });
   };
 
+  toggleOcr = () => {
+    this.setState({
+      ocrEnable:
+        this.state.ocrEnable === false
+          ? (d) => {
+            if (Date.now() - this.state.dateTime > 3000) {
+              this.setState({
+                ocrText: d.textBlocks.map(e => e.value).reduce((prev, cur) =>
+                  `${prev}\n${cur}`, ''),
+              });
+              this.setState({
+                dateTime: Date.now(),
+              });
+              console.log(d);
+            }
+          }
+          : false,
+    });
+
+    this.setState({
+      ocrText: '',
+    });
+  };
+
   toggleWB = () => {
     this.setState({
       whiteBalance: wbOrder[this.state.whiteBalance],
@@ -227,7 +256,6 @@ class CameraScreen extends React.Component {
         });
       });
 
-      // recognizeOcr(contentUri, fileName).then((ocr) => { console.log(ocr); });
       retrieveOcrPhotos().then((photos) => {
         const mdFileName = fileName.replace('jpg', 'md');
         photos.push({
@@ -287,39 +315,47 @@ class CameraScreen extends React.Component {
     storePhotos([]);
   };
 
-  renderTopMenu = () => (
-    <View style={styles.menuBar}>
-      <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
-        <Image
-          style={{
+  renderTopMenu = () => {
+    const OCRStyle = this.state.ocrEnable === false ?
+      [styles.photoHelper, { color: 'grey' }]
+      : [styles.photoHelper, { color: CamColors.green2 }];
+    return (
+      <View style={styles.menuBar}>
+        <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
+          <Image
+            style={{
             alignSelf: 'center',
             height: 24,
             width: 24,
           }}
-          resizeMode="cover"
-          source={KeeperIcon}
-        />
-      </TouchableOpacity>
+            resizeMode="cover"
+            source={KeeperIcon}
+          />
+        </TouchableOpacity>
 
-      <View style={styles.cameraOption}>
-        <TouchableOpacity onPress={this.resetCount}>
-          <Text style={styles.photoHelper}>R</Text>
-        </TouchableOpacity>
-        <Text style={styles.photoHelper}>
-          {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
-        </Text>
-        <TouchableOpacity onPress={this.toggleFlash}>
-          <Icon name="flash" color="white" size={24} style={styles.flipIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.getRatios}>
-          <MIcon name="aspect-ratio" color="white" size={24} style={styles.flipIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.toggleFacing}>
-          <Icon name="refresh" color="white" size={24} style={styles.flipIcon} />
-        </TouchableOpacity>
+        <View style={styles.cameraOption}>
+          <TouchableOpacity onPress={this.toggleOcr}>
+            <Text style={OCRStyle}>OCR</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.resetCount}>
+            <Text style={styles.photoHelper}>R</Text>
+          </TouchableOpacity>
+          <Text style={styles.photoHelper}>
+            {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
+          </Text>
+          <TouchableOpacity onPress={this.toggleFlash}>
+            <Icon name="flash" color="white" size={24} style={styles.flipIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.getRatios}>
+            <MIcon name="aspect-ratio" color="white" size={24} style={styles.flipIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.toggleFacing}>
+            <Icon name="refresh" color="white" size={24} style={styles.flipIcon} />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  }
 
   renderCamera = () => (
     <RNCamera
@@ -337,19 +373,22 @@ class CameraScreen extends React.Component {
       focusDepth={this.state.depth}
       permissionDialogTitle="Permission to use camera"
       permissionDialogMessage="We need your permission to use your camera phone"
+      exif
+      onTextRecognized={this.state.ocrEnable}
     >
-      <Text
+      <TouchableOpacity
         style={{
-          flex: 0.85,
+          flex: 1,
           backgroundColor: 'transparent',
           flexDirection: 'row',
-          justifyContent: 'space-around',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
         onPress={this.closeKeeperOption}
       />
       <View
         style={{
-          flex: 0.15,
+          height: 80,
           backgroundColor: 'transparent',
           flexDirection: 'row',
           alignSelf: 'center',
@@ -371,15 +410,20 @@ class CameraScreen extends React.Component {
       <SafeAreaView style={styles.container}>
         <StatusBar translucent barStyle="light-content" />
         {this.renderTopMenu()}
-        {this.state.keeperOptionVisible && (
+        {!this.state.ocrEnable && this.state.keeperOptionVisible && (
           <KeeperOptionModal
             libraries={this.props.libraries}
             onSelectLibrary={this.onSelectLibrary}
             destination={this.destination()}
             logout={this.logout}
-            // setNetOption={this.props.setNetOption}
           />
         )}
+        {this.state.ocrEnable &&
+          <OcrModal
+            ocrEnable={this.state.ocrEnable}
+            ocrText={this.state.ocrText}
+          />
+        }
         {this.renderCamera()}
       </SafeAreaView>
     );
@@ -391,8 +435,6 @@ CameraScreen.propTypes = {
   libraries: PropTypes.array.isRequired,
   batchUpload: PropTypes.func.isRequired,
   uploadFile: PropTypes.func.isRequired,
-  // photos: PropTypes.array.isRequired,
-  // setPhotos: PropTypes.func.isRequired,
   setAuthenticateResult: PropTypes.func.isRequired,
   netOption: PropTypes.string.isRequired,
   navigation: PropTypes.object.isRequired,
@@ -406,7 +448,6 @@ const mapStateToProps = state => ({
   destinationLibrary: state.library.destinationLibrary,
   paths: state.library.paths,
   netOption: state.upload.netOption,
-  // photos: state.upload.photos,
   nav: state.nav,
 });
 
@@ -416,7 +457,6 @@ const mapDispatchToProps = dispatch => ({
   fetchLibraries: () => dispatch(LibraryActions.fetchLibraries()),
   setDestinationLibrary: destinationLibrary =>
     dispatch(LibraryActions.setDestinationLibrary(destinationLibrary)),
-  // setPhotos: photos => dispatch(UploadActions.setPhotos(photos)),
   setAuthenticateResult: result => dispatch(AccountsActions.setAuthenticateResult(result)),
   setNetOption: netOption => dispatch(UploadActions.setNetOption(netOption)),
 });
@@ -425,70 +465,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(CameraScreen);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    paddingTop: StatusBar.currentHeight,
-  },
-  navigation: {
-    flex: 1,
-  },
-  gallery: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  menuBar: {
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    height: 40,
-  },
-  keeperIcon: {
-    marginLeft: 10,
-    width: 24,
-    height: 24,
-  },
-  cameraOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  flipButton: {
-    flex: 0.3,
-    height: 40,
-    marginHorizontal: 2,
-    marginBottom: 10,
-    marginTop: 20,
-    borderRadius: 8,
-    borderColor: 'white',
-    borderWidth: 1,
-    padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flipText: {
-    color: 'white',
-    fontSize: 15,
-  },
-  flipIcon: {
-    marginHorizontal: 16,
-  },
-  cameraIcon: {
-    backgroundColor: 'black',
-    padding: 15,
-    borderRadius: 30,
-    zIndex: 99,
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  photoHelper: {
-    color: 'red',
-    fontSize: 15,
-    marginHorizontal: 8,
-  },
-});

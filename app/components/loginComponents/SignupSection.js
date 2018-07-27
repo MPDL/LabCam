@@ -2,12 +2,18 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import PropTypes from 'prop-types';
 
+const DEVICE_WIDTH =
+  Dimensions.get('window').width < Dimensions.get('window').height
+    ? Dimensions.get('window').width
+    : Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
   container: {
     top: 30,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     height: 50,
+    width: DEVICE_WIDTH,
     paddingHorizontal: 40,
   },
   text: {

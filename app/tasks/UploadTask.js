@@ -130,12 +130,25 @@ const uploadNext = async (photo) => {
   const ocrPath = await recognizeOcr(photo.contentUri, photo.fileName);
   console.log('recognizeOcr:');
   console.log(ocrPath);
-  const ocrFiles = await getDirectories(server, credentials, repo, parentDir, 'f');
-  if (ocrFiles.map(file => file.name).includes(photo.fileName)) return; // another task is running
+  if (ocrPath !== null) {
+    // null ocr don't upload
+    const ocrFiles = await getDirectories(server, credentials, repo, parentDir, 'f');
+    if (ocrFiles.map(file => file.name).includes(photo.fileName)) return; // another task is running
 
-  const uploadOCR = await uploadRNFB(credentials, link, ocrPath, photo.fileName, parentDir);
-  console.log(`uploadOCR: ${photo.fileName} ${uploadOCR}`);
-  if (uploadOCR) {
+    const uploadOCR = await uploadRNFB(credentials, link, ocrPath, photo.fileName, parentDir);
+    console.log(`uploadOCR: ${photo.fileName} ${uploadOCR}`);
+    if (uploadOCR) {
+      const ocrPhotosAfter = await retrieveOcrPhotos();
+      const uploadedOcrPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
+      const ocrWaitingList = ocrPhotosAfter.filter(element => !uploadedOcrPhotos.map(file => file.name).includes(element.fileName));
+      const ocrPhotoList = ocrWaitingList.filter(e => e.contentUri !== photo.contentUri);
+      await storeOcrPhotos(ocrPhotoList);
+      console.log(`${ocrPhotoList.length} ocr left`);
+      if (ocrPhotoList.length > 0) {
+        uploadNext(ocrPhotoList[0]);
+      }
+    }
+  } else {
     const ocrPhotosAfter = await retrieveOcrPhotos();
     const uploadedOcrPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
     const ocrWaitingList = ocrPhotosAfter.filter(element => !uploadedOcrPhotos.map(file => file.name).includes(element.fileName));

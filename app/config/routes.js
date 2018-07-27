@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { StatusBar, Easing, Animated } from 'react-native';
+import { Easing, Animated } from 'react-native';
 import {
   createReduxBoundAddListener,
   createReactNavigationReduxMiddleware,
@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 import { StackNavigator } from 'react-navigation';
 import LoginScreen from '../screens/LoginScreen';
-import CameraScreen from '../screens/CameraScreen';
+import CameraScreen from '../screens/CameraScreen/CameraScreen';
 import LibraryScreen from '../screens/LibraryScreen';
 import StartupScreen from '../screens/StartupScreen';
 
@@ -42,7 +42,6 @@ export const AppNavigator = StackNavigator(
   },
   {
     headerMode: 'none',
-    // cardStyle: { paddingTop: StatusBar.currentHeight },
     transitionConfig: () => ({
       transitionSpec: {
         duration: 100,

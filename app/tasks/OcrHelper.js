@@ -17,6 +17,7 @@ export const recognizeOcr = async (uri, imgName) => {
     console.log(ocrUri.originalFilepath);
     // const ocrText = await recognize(ocrUri.originalFilepath);
     const ocrText = await recognize(normalizedUri);
+    if (ocrText.length === 0) return null;
     const path = await createFile(imgName, ocrText);
     return path;
   } catch (err) {

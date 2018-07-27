@@ -33,6 +33,13 @@ class KeeperOptionModal extends React.Component {
   );
 
   render() {
+    const { destination } = this.props;
+    const destinationText = destination
+      ? destination.length > 15
+        ? `${destination.substring(0, 13)}..`
+        : destination
+      : '';
+
     return (
       <View style={styles.root}>
         <Triangle
@@ -46,7 +53,7 @@ class KeeperOptionModal extends React.Component {
           <View style={styles.libraryRow}>
             <SmallText style={styles.folderOptionText}>Upload Photos to Keeper</SmallText>
             <SmallText style={styles.selectedLibrary} onPress={this.props.onSelectLibrary}>
-              {`${this.props.destination} `}
+              {destinationText}
               <Icon name="arrow-drop-down" size={16} />
             </SmallText>
           </View>
