@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 15,
   },
-  flipIcon: {
+  topMenuIcon: {
     marginHorizontal: 16,
   },
   cameraIcon: {
@@ -57,6 +57,17 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 30,
     zIndex: 99,
+  },
+  flipIcon: {
+    padding: 15,
+    zIndex: 99,
+  },
+  preview: {
+    width: 40,
+    height: 40,
+    borderColor: 'white',
+    borderWidth: 1,
+    borderRadius: 8,
   },
   row: {
     flexDirection: 'row',

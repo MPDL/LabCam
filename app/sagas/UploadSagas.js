@@ -2,7 +2,12 @@ import { call, select, put } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import UploadActions from '../redux/UploadRedux';
-import { retrievePhotos, storePhotos } from '../storage/DbHelper';
+import {
+  retrievePhotos,
+  storePhotos,
+  retrieveOcrTextFile,
+  storeOcrTextFile,
+} from '../storage/DbHelper';
 import { getDirectories } from '../api/LibraryApi';
 
 export function* uploadFile(action) {
@@ -14,7 +19,11 @@ export function* uploadFile(action) {
     const link = yield call(getUploadLink, destinationLibrary.id, server, authenticateResult);
     if (link) {
       console.log(link);
-      yield call(uploadPhoto, authenticateResult, link, photo, parentDir);
+      if (photo.fileName.includes('.jpg')) {
+        yield call(uploadPhoto, authenticateResult, link, photo, parentDir);
+      } else if (photo.fileName.includes('.md')) {
+        yield call(uploadOcrTextFile, authenticateResult, link, photo, parentDir);
+      }
     }
   } catch (e) {
     console.log(e);
@@ -43,6 +52,28 @@ function* uploadPhoto(authenticateResult, link, photo, parentDir) {
   }
 }
 
+function* uploadOcrTextFile(authenticateResult, link, ocrTextFile, parentDir) {
+  try {
+    const uploadImgResult = yield call(
+      uploadRNFB,
+      authenticateResult,
+      link,
+      ocrTextFile.contentUri,
+      ocrTextFile.fileName,
+      parentDir,
+    );
+    if (uploadImgResult) {
+      console.log(`${ocrTextFile.fileName} is uploaded`);
+      console.log(uploadImgResult);
+      const ocrTextFileList = yield retrieveOcrTextFile();
+      yield storeOcrTextFile(ocrTextFileList.filter(e => e.contentUri !== ocrTextFileList.contentUri));
+      console.log(`${ocrTextFileList.length} mdFiles left`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 export function* batchUpload(action) {
   // const { photos } = action;
   const { server, authenticateResult } = yield select(state => state.accounts);
@@ -59,11 +90,18 @@ export function* batchUpload(action) {
       'f',
     );
     const photos = yield retrievePhotos();
-    const waitingList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
-    storePhotos(waitingList);
-    for (let i = 0; i < waitingList.length; i += 1) {
-      yield put(UploadActions.uploadFile(waitingList[i]));
+    const waitingPhotoList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
+    storePhotos(waitingPhotoList);
+    for (let i = 0; i < waitingPhotoList.length; i += 1) {
+      yield put(UploadActions.uploadFile(waitingPhotoList[i]));
       yield call(delay, 1500);
+    }
+
+    const mdFiles = yield retrieveOcrTextFile();
+    const waitingTextFileList = mdFiles.filter(element => !files.map(file => file.name).includes(element.fileName));
+    storeOcrTextFile(waitingTextFileList);
+    for (let i = 0; i < waitingTextFileList.length; i += 1) {
+      yield put(UploadActions.uploadFile(waitingTextFileList[i]));
     }
   } catch (e) {
     console.log(e);

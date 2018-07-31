@@ -2,51 +2,32 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
 import CamColors from '../../common/CamColors';
+import UploadActions from '../../redux/UploadRedux';
 
 class OcrModal extends React.Component {
-  state = {
-    isScanning: true,
-    ocrTempResult: '',
-  };
-
-  toggleScan = () => {
-    const { ocrText } = this.props;
-    console.log(ocrText);
-    if (this.state.isScanning) {
-      this.setState({
-        ocrTempResult: ocrText,
-      });
-    } else {
-      this.setState({
-        ocrTempResult: '',
-      });
-    }
-
-    this.setState({
-      isScanning: !this.state.isScanning,
-    });
-  };
-
   render() {
-    const { ocrText } = this.props;
-    const { isScanning, ocrTempResult } = this.state;
-    const ocrResult = ocrTempResult === '' ? ocrText : ocrTempResult;
+    const {
+      ocrScanText, isScanning, ocrTextOnPause, toggleScan,
+    } = this.props;
+    const ocrResult = ocrTextOnPause === '' ? ocrScanText : ocrTextOnPause;
+
+    const togglePauseTextStyle = isScanning ? styles.pauseText : styles.resumeText;
 
     return (
       <View style={styles.ocrLayer}>
         {this.props.ocrEnable && (
           <View style={styles.ocrModal}>
             <View style={styles.ocrTopPanel}>
-              <Text>Scanning...</Text>
-              <TouchableOpacity style={styles.scanSwitch} onPress={this.toggleScan}>
-                <Text>{isScanning ? 'Stop' : 'Start'}</Text>
+              <Text style={styles.scanningText}>{isScanning ? 'Scanning...' : ''}</Text>
+              <TouchableOpacity style={styles.scanSwitch} onPress={toggleScan}>
+                <Text style={togglePauseTextStyle}>{isScanning ? 'Pause' : 'Resume'}</Text>
               </TouchableOpacity>
             </View>
-            <Text textAlign="center" style={styles.ocrResult}>
-              {ocrResult}
-            </Text>
+            <ScrollView style={styles.ocrScrollView}>
+              <Text textAlign="center">{ocrResult}</Text>
+            </ScrollView>
           </View>
         )}
       </View>
@@ -56,8 +37,25 @@ class OcrModal extends React.Component {
 
 OcrModal.propTypes = {
   ocrEnable: PropTypes.any.isRequired,
-  ocrText: PropTypes.string.isRequired,
+  isScanning: PropTypes.bool.isRequired,
+  ocrScanText: PropTypes.string.isRequired,
+  ocrTextOnPause: PropTypes.string.isRequired,
+  toggleScan: PropTypes.func.isRequired,
 };
+
+const mapStateToProps = state => ({
+  netOption: state.upload.netOption,
+  ocrTextOnPause: state.upload.ocrTextOnPause,
+});
+
+const mapDispatchToProps = dispatch => ({
+  setOcrTextOnPause: ocrTextOnPause => dispatch(UploadActions.setOcrTextOnPause(ocrTextOnPause)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OcrModal);
 
 const styles = StyleSheet.create({
   ocrLayer: {
@@ -72,12 +70,12 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   ocrModal: {
-    width: '80%',
-    height: '60%',
+    width: '100%',
+    height: '100%',
     flexDirection: 'column',
     justifyContent: 'center',
     backgroundColor: CamColors.colorWithAlpha('white', 0.5),
-    borderRadius: 20,
+    // borderRadius: 20,
     padding: 5,
   },
   ocrTopPanel: {
@@ -89,14 +87,20 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scanSwitch: {},
-  ocrResult: {
+  ocrScrollView: {
     flex: 1,
     padding: 16,
   },
+  pauseText: {
+    fontSize: 16,
+    color: 'red',
+  },
+  resumeText: {
+    fontSize: 16,
+    color: CamColors.green2,
+  },
+  scanningText: {
+    fontSize: 16,
+    color: CamColors.green2,
+  },
 });
-
-const mapStateToProps = state => ({
-  netOption: state.upload.netOption,
-});
-
-export default connect(mapStateToProps)(OcrModal);

@@ -24,14 +24,15 @@ import KeeperIcon from '../../images/keeper.png';
 import {
   retrievePhotos,
   storePhotos,
-  retrieveOcrPhotos,
-  storeOcrPhotos,
+  retrieveOcrTextFile,
+  storeOcrTextFile,
 } from '../../storage/DbHelper';
-import { startService, stopService } from '../../tasks/OcrHelper';
+import { startService, stopService, createFile } from '../../tasks/OcrHelper';
 import CamColors from '../../common/CamColors';
 import styles from './styles';
 import OcrModal from '../../components/CameraComponents/OcrModal';
 import KeeperOptionModal from '../../components/CameraComponents/KeeperOptionModal';
+import BigPicModal from '../../components/CameraComponents/BigPicModal';
 
 const flashModeOrder = {
   off: 'on',
@@ -58,13 +59,16 @@ class CameraScreen extends React.Component {
     whiteBalance: 'auto',
     ratio: '16:9',
     keeperOptionVisible: false,
+    bigPicVisible: false,
     countClick: 0,
     countTakePhoto: 0,
     isCameraReady: true,
+    lastPhotoUri: '',
     netInfo: '',
     appState: AppState.currentState,
     ocrEnable: false,
-    ocrText: '',
+    isScanning: true,
+    ocrScanText: '',
     dateTime: 0,
   };
 
@@ -163,14 +167,16 @@ class CameraScreen extends React.Component {
   };
 
   toggleOcr = () => {
+    const { setOcrTextOnPause } = this.props;
     this.setState({
       ocrEnable:
         this.state.ocrEnable === false
           ? (d) => {
             if (Date.now() - this.state.dateTime > 3000) {
+              const ocrScanText = d.textBlocks.map(e => e.value).reduce((prev, cur) =>
+                `${prev}\n${cur}`, '');
               this.setState({
-                ocrText: d.textBlocks.map(e => e.value).reduce((prev, cur) =>
-                  `${prev}\n${cur}`, ''),
+                ocrScanText,
               });
               this.setState({
                 dateTime: Date.now(),
@@ -182,8 +188,10 @@ class CameraScreen extends React.Component {
     });
 
     this.setState({
-      ocrText: '',
+      ocrScanText: '',
     });
+
+    setOcrTextOnPause('');
   };
 
   toggleWB = () => {
@@ -197,6 +205,27 @@ class CameraScreen extends React.Component {
       autoFocus: this.state.autoFocus === 'on' ? 'off' : 'on',
     });
   };
+
+  toggleScan = () => {
+    const { ocrScanText, isScanning } = this.state;
+    const { setOcrTextOnPause } = this.props;
+    if (isScanning) {
+      // pause
+      setOcrTextOnPause(ocrScanText);
+    } else {
+      setOcrTextOnPause('');
+    }
+
+    this.setState({
+      isScanning: !this.state.isScanning,
+    });
+  };
+
+  toggleBigPic = () => {
+    this.setState({
+      bigPicVisible: !this.state.bigPicVisible,
+    });
+  }
 
   takePicture = async () => {
     this.setState({
@@ -239,6 +268,9 @@ class CameraScreen extends React.Component {
 
   saveToCameraRoll = (image) => {
     CameraRoll.saveToCameraRoll(image.uri).then((contentUri) => {
+      this.setState({
+        lastPhotoUri: contentUri,
+      });
       const fileName = image.uri.substring(image.uri.lastIndexOf('/') + 1);
       retrievePhotos().then((photos) => {
         photos.push({
@@ -255,17 +287,29 @@ class CameraScreen extends React.Component {
           }
         });
       });
-
-      retrieveOcrPhotos().then((photos) => {
-        const mdFileName = fileName.replace('jpg', 'md');
-        photos.push({
-          fileName: mdFileName,
-          contentUri,
-        });
-        storeOcrPhotos(photos);
-      });
+      this.uploadOcr(fileName);
     });
   };
+
+  uploadOcr = async (fileName) => {
+    const { ocrTextOnPause } = this.props;
+    if (ocrTextOnPause === '') return;
+    const contentUri = await createFile(ocrTextOnPause);
+    const ocrTextFileList = await retrieveOcrTextFile();
+    const mdFileName = fileName.replace('jpg', 'md');
+    ocrTextFileList.push({
+      fileName: mdFileName,
+      contentUri,
+    });
+    storeOcrTextFile(ocrTextFileList);
+    if (this.state.netInfo !== 'none') {
+      this.uploadToKeeper({
+        fileName: mdFileName,
+        contentUri,
+      });
+    }
+    this.toggleScan();
+  }
 
   goBack = () => {
     const { nav } = this.props;
@@ -307,14 +351,6 @@ class CameraScreen extends React.Component {
     return destinationLibrary.name;
   };
 
-  resetCount = () => {
-    this.setState({
-      countClick: 0,
-      countTakePhoto: 0,
-    });
-    storePhotos([]);
-  };
-
   renderTopMenu = () => {
     const OCRStyle = this.state.ocrEnable === false ?
       [styles.photoHelper, { color: 'grey' }]
@@ -337,20 +373,14 @@ class CameraScreen extends React.Component {
           <TouchableOpacity onPress={this.toggleOcr}>
             <Text style={OCRStyle}>OCR</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={this.resetCount}>
-            <Text style={styles.photoHelper}>R</Text>
-          </TouchableOpacity>
           <Text style={styles.photoHelper}>
             {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
           </Text>
           <TouchableOpacity onPress={this.toggleFlash}>
-            <Icon name="flash" color="white" size={24} style={styles.flipIcon} />
+            <Icon name="flash" color="white" size={24} style={styles.topMenuIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={this.getRatios}>
-            <MIcon name="aspect-ratio" color="white" size={24} style={styles.flipIcon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.toggleFacing}>
-            <Icon name="refresh" color="white" size={24} style={styles.flipIcon} />
+            <MIcon name="aspect-ratio" color="white" size={24} style={styles.topMenuIcon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -391,9 +421,25 @@ class CameraScreen extends React.Component {
           height: 80,
           backgroundColor: 'transparent',
           flexDirection: 'row',
+          justifyContent: 'space-around',
           alignSelf: 'center',
+          width: '100%',
         }}
       >
+        <TouchableOpacity
+          style={[{ alignSelf: 'flex-end', marginBottom: 10 }]}
+          onPress={this.toggleBigPic}
+        >
+          {this.state.lastPhotoUri === '' ?
+            <View
+              style={[styles.preview, { backgroundColor: CamColors.colorWithAlpha('white', 0.5) }]}
+            /> :
+            <Image
+              style={styles.preview}
+              source={{ uri: this.state.lastPhotoUri }}
+            />}
+
+        </TouchableOpacity>
         <TouchableOpacity
           style={[{ alignSelf: 'flex-end', marginBottom: 6 }]}
           onPress={this.takePicture}
@@ -401,7 +447,13 @@ class CameraScreen extends React.Component {
         >
           <Icon name="camera" color="white" size={24} style={styles.cameraIcon} />
         </TouchableOpacity>
-      </View>
+        <TouchableOpacity
+          style={[{ alignSelf: 'flex-end', marginBottom: 6 }]}
+          onPress={this.toggleFacing}
+        >
+          <Icon name="refresh" color="white" size={24} style={styles.flipIcon} />
+        </TouchableOpacity>
+      </View >
     </RNCamera>
   );
 
@@ -421,7 +473,15 @@ class CameraScreen extends React.Component {
         {this.state.ocrEnable &&
           <OcrModal
             ocrEnable={this.state.ocrEnable}
-            ocrText={this.state.ocrText}
+            ocrScanText={this.state.ocrScanText}
+            isScanning={this.state.isScanning}
+            toggleScan={this.toggleScan}
+          />
+        }
+        {this.state.bigPicVisible &&
+          <BigPicModal
+            toggleBigPic={this.toggleBigPic}
+            uri={this.state.lastPhotoUri}
           />
         }
         {this.renderCamera()}
@@ -440,6 +500,7 @@ CameraScreen.propTypes = {
   navigation: PropTypes.object.isRequired,
   destinationLibrary: PropTypes.object,
   nav: PropTypes.object.isRequired,
+  setOcrTextOnPause: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -448,6 +509,7 @@ const mapStateToProps = state => ({
   destinationLibrary: state.library.destinationLibrary,
   paths: state.library.paths,
   netOption: state.upload.netOption,
+  ocrTextOnPause: state.upload.ocrTextOnPause,
   nav: state.nav,
 });
 
@@ -459,6 +521,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(LibraryActions.setDestinationLibrary(destinationLibrary)),
   setAuthenticateResult: result => dispatch(AccountsActions.setAuthenticateResult(result)),
   setNetOption: netOption => dispatch(UploadActions.setNetOption(netOption)),
+  setOcrTextOnPause: ocrTextOnPause => dispatch(UploadActions.setOcrTextOnPause(ocrTextOnPause)),
 });
 
 export default connect(

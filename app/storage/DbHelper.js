@@ -49,3 +49,28 @@ export const storeOcrPhotos = async (ocr) => {
     console.log(error);
   }
 };
+
+export const retrieveOcrTextFile = async () => {
+  let md = [];
+  try {
+    const photosPersist = await AsyncStorage.getItem('md');
+    if (photosPersist !== null) {
+      md = JSON.parse(photosPersist);
+      console.log('_retrieveMd');
+      console.log(md);
+    }
+    return md;
+  } catch (error) {
+    console.log(error);
+    return md;
+  }
+};
+
+export const storeOcrTextFile = async (md) => {
+  try {
+    await AsyncStorage.setItem('md', JSON.stringify(md));
+  } catch (error) {
+    // Error saving data
+    console.log(error);
+  }
+};
