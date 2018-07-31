@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { StackNavigator } from 'react-navigation';
 import LoginScreen from '../screens/LoginScreen';
 import CameraScreen from '../screens/CameraScreen/CameraScreen';
-import LibraryScreen from '../screens/LibraryScreen';
+import LibraryScreen from '../screens/LibraryScreen/LibraryScreen';
 import StartupScreen from '../screens/StartupScreen';
 
 export const reduxMiddleware = createReactNavigationReduxMiddleware('root', state => state.nav);

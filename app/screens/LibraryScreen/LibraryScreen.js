@@ -1,22 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {
-  View,
-  SafeAreaView,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  StatusBar,
-  NetInfo,
-} from 'react-native';
+import { View, SafeAreaView, FlatList, TouchableOpacity, StatusBar, NetInfo } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import Immutable from 'seamless-immutable';
-import LibraryActions from '../redux/LibraryRedux';
-import LibraryItem from '../components/LibraryComponents/LibraryItem';
-import { SmallText } from '../common/CamText';
-import CamFonts from '../common/CamFonts';
-import CamColors from '../common/CamColors';
+import LibraryActions from '../../redux/LibraryRedux';
+import LibraryItem from '../../components/LibraryComponents/LibraryItem';
+import { SmallText } from '../../common/CamText';
+import styles from './styles';
 
 class LibraryScreen extends Component {
   constructor(props) {
@@ -25,7 +16,6 @@ class LibraryScreen extends Component {
     this.state = {
       cachedPaths: [],
       cachedLibrary: null,
-      netInfo: '',
     };
   }
 
@@ -33,23 +23,10 @@ class LibraryScreen extends Component {
 
   componentDidMount() {
     this._s0 = this.props.navigation.addListener('willFocus', this._onWF);
-    NetInfo.getConnectionInfo().then((connectionInfo) => {
-      this.setState({
-        netInfo: connectionInfo.type,
-      });
-    });
-    NetInfo.addEventListener('connectionChange', this._handleConnectionChange);
   }
   componentWillUnmount() {
     this._s0.remove();
-    NetInfo.removeEventListener('connectionChange', this._handleConnectionChange);
   }
-
-  _handleConnectionChange = (connectionInfo) => {
-    this.setState({
-      netInfo: connectionInfo.type,
-    });
-  };
 
   _onWF = (a) => {
     const { destinationLibrary, paths, fetchLibraries } = this.props;
@@ -58,9 +35,6 @@ class LibraryScreen extends Component {
       cachedLibrary: destinationLibrary,
     });
     NetInfo.getConnectionInfo().then((connectionInfo) => {
-      this.setState({
-        netInfo: connectionInfo.type,
-      });
       if (connectionInfo.type !== 'none') {
         fetchLibraries();
       }
@@ -69,7 +43,6 @@ class LibraryScreen extends Component {
 
   getDirectories = (library, paths) => {
     const { fetchDirectories } = this.props;
-    console.log(`paths${paths}`);
     fetchDirectories(library, paths);
   };
 
@@ -79,7 +52,6 @@ class LibraryScreen extends Component {
   confirmDirectory = () => {
     const { setParentDir, paths } = this.props;
     const parentDir = this.createDir(paths);
-    console.log(parentDir);
     setParentDir(parentDir);
     this.openCam();
   };
@@ -88,7 +60,6 @@ class LibraryScreen extends Component {
     const { setParentDir, setPaths, setDestinationLibrary } = this.props;
     const { cachedPaths, cachedLibrary } = this.state;
     const parentDir = this.createDir(cachedPaths);
-    console.log(parentDir);
     setDestinationLibrary(cachedLibrary);
     setPaths(cachedPaths);
     setParentDir(parentDir);
@@ -294,61 +265,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(LibraryScreen);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: StatusBar.currentHeight,
-  },
-  card: {
-    flexDirection: 'column',
-    width: '90%',
-    height: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-  },
-  topContainer: {
-    backgroundColor: '#CED0CE',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
-    flexWrap: 'nowrap',
-  },
-  pathContainer: {
-    flex: 5,
-    marginHorizontal: 10,
-    marginVertical: 10,
-  },
-  destiny: {
-    marginHorizontal: 8,
-  },
-  libraryGrid: {
-    height: CamFonts.normalize(64),
-  },
-  cancelBtn: {
-    flex: 1,
-    borderColor: 'white',
-  },
-  cancelText: {
-    color: CamColors.green2,
-    textAlign: 'center',
-    marginVertical: 10,
-  },
-  confirmBtn: {
-    flex: 1,
-  },
-  confirmText: {
-    color: CamColors.green2,
-    textAlign: 'center',
-    marginVertical: 10,
-  },
-  dirList: {
-    paddingBottom: 64,
-  },
-});
