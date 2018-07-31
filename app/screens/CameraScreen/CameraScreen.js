@@ -222,9 +222,11 @@ class CameraScreen extends React.Component {
   };
 
   toggleBigPic = () => {
-    this.setState({
-      bigPicVisible: !this.state.bigPicVisible,
-    });
+    if (this.state.lastPhotoUri) {
+      this.setState({
+        bigPicVisible: !this.state.bigPicVisible,
+      });
+    }
   }
 
   takePicture = async () => {

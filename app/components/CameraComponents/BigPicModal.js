@@ -43,6 +43,6 @@ const styles = StyleSheet.create({
   bigPic: {
     width: '100%',
     height: '100%',
-    resizeMode: 'stretch',
+    resizeMode: 'cover',
   },
 });
