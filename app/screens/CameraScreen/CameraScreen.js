@@ -295,7 +295,10 @@ class CameraScreen extends React.Component {
 
   uploadOcr = async (fileName) => {
     const { ocrTextOnPause } = this.props;
-    if (ocrTextOnPause === '') return;
+    if (ocrTextOnPause === '') {
+      this.toggleScan();
+      return;
+    }
     const contentUri = await createFile(ocrTextOnPause);
     const ocrTextFileList = await retrieveOcrTextFile();
     const mdFileName = fileName.replace('jpg', 'md');

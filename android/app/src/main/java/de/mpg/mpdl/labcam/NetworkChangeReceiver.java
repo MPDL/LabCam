@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
@@ -88,6 +87,11 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     public static void startService(final Context context, final String internetType) {
 
+//        Intent serviceIntent = new Intent(context, MyTaskService.class);
+//        serviceIntent.putExtra("internetType", internetType);
+//        context.startService(serviceIntent);
+//        HeadlessJsTaskService.acquireWakeLockNow(context);
+
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -96,6 +100,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                         context.startService(serviceIntent);
                         HeadlessJsTaskService.acquireWakeLockNow(context);
                     }
-                }, 2000);
+                }, 10000);
     }
 }

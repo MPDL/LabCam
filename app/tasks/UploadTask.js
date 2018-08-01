@@ -56,8 +56,14 @@ const UploadTask = async (data) => {
   try {
     link = await getUploadLink(repo, server, credentials);
     console.log(link);
-  } catch (e) {
-    console.log(e);
+  } catch (e1) {
+    if (e1.message === 'Network request failed') {
+      try {
+        link = await getUploadLink(repo, server, credentials);
+      } catch (e2) {
+        console.log(e2);
+      }
+    }
   }
 
   try {
@@ -97,26 +103,33 @@ const uploadOcr = async () => {
 const uploadPhoto = async (photo) => {
   console.log(AppState.currentState);
   if (AppState.currentState === 'active') return;
-  const uploadPhotoResult = await uploadRNFB(
-    credentials,
-    link,
-    photo.contentUri,
-    photo.fileName,
-    parentDir,
-  );
-  console.log(`uploadPhoto: ${photo.fileName} ${uploadPhotoResult}`);
-  if (uploadPhotoResult) {
-    const photosAfter = await retrievePhotos();
-    const uploadedPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
-    const waitingList = photosAfter.filter(element => !uploadedPhotos.map(file => file.name).includes(element.fileName));
-    const photoList = waitingList.filter(e => e.contentUri !== photo.contentUri);
-    await storePhotos(photoList);
-    console.log(`${photoList.length} photos left`);
-    if (photoList && photoList.length === 0) {
-      console.log('pic upload finished!');
-      uploadOcr();
-    } else if (photoList && photoList.length > 0) {
-      uploadPhoto(photoList[0]);
+  try {
+    const uploadPhotoResult = await uploadRNFB(
+      credentials,
+      link,
+      photo.contentUri,
+      photo.fileName,
+      parentDir,
+    );
+    console.log(`uploadPhoto: ${photo.fileName} ${uploadPhotoResult}`);
+    if (uploadPhotoResult) {
+      const photosAfter = await retrievePhotos();
+      const uploadedPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
+      const waitingList = photosAfter.filter(element => !uploadedPhotos.map(file => file.name).includes(element.fileName));
+      const photoList = waitingList.filter(e => e.contentUri !== photo.contentUri);
+      await storePhotos(photoList);
+      console.log(`${photoList.length} photos left`);
+      if (photoList && photoList.length === 0) {
+        console.log('pic upload finished!');
+        uploadOcr();
+      } else if (photoList && photoList.length > 0) {
+        uploadPhoto(photoList[0]);
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    if (e.message === 'Network request failed') {
+      uploadPhoto(photo);
     }
   }
 };
@@ -124,25 +137,32 @@ const uploadPhoto = async (photo) => {
 const uploadOcrTextFile = async (ocrTextFile) => {
   console.log(AppState.currentState);
   if (AppState.currentState === 'active') return;
-  const uploadPhotoResult = await uploadRNFB(
-    credentials,
-    link,
-    ocrTextFile.contentUri,
-    ocrTextFile.fileName,
-    parentDir,
-  );
-  console.log(`uploadMd: ${ocrTextFile.fileName} ${uploadPhotoResult}`);
-  if (uploadPhotoResult) {
-    const mdAfter = await retrieveOcrTextFile();
-    const mdFileList = mdAfter.filter(e => e.fileName !== ocrTextFile.fileName);
-    await storeOcrTextFile(mdFileList);
-    console.log(mdAfter);
-    console.log(mdFileList);
-    console.log(`${mdFileList.length} md left`);
-    if (mdFileList && mdFileList.length === 0) {
-      console.log('md upload finished!');
-    } else if (mdFileList && mdFileList.length > 0) {
-      uploadOcrTextFile(mdFileList[0]);
+  try {
+    const uploadPhotoResult = await uploadRNFB(
+      credentials,
+      link,
+      ocrTextFile.contentUri,
+      ocrTextFile.fileName,
+      parentDir,
+    );
+    console.log(`uploadMd: ${ocrTextFile.fileName} ${uploadPhotoResult}`);
+    if (uploadPhotoResult) {
+      const mdAfter = await retrieveOcrTextFile();
+      const mdFileList = mdAfter.filter(e => e.fileName !== ocrTextFile.fileName);
+      await storeOcrTextFile(mdFileList);
+      console.log(mdAfter);
+      console.log(mdFileList);
+      console.log(`${mdFileList.length} md left`);
+      if (mdFileList && mdFileList.length === 0) {
+        console.log('md upload finished!');
+      } else if (mdFileList && mdFileList.length > 0) {
+        uploadOcrTextFile(mdFileList[0]);
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    if (e.message === 'Network request failed') {
+      uploadOcrTextFile(ocrTextFile);
     }
   }
 };
