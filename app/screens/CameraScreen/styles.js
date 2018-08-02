@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   flipIcon: {
-    padding: 15,
+    padding: 5,
     zIndex: 99,
   },
   preview: {

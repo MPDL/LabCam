@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import { NavigationActions } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MIcon from 'react-native-vector-icons/MaterialIcons';
+import IIcon from 'react-native-vector-icons/Ionicons';
 import AccountsActions from '../../redux/AccountsRedux';
 import UploadActions from '../../redux/UploadRedux';
 import LibraryActions from '../../redux/LibraryRedux';
@@ -38,8 +39,7 @@ import BigPicModal from '../../components/CameraComponents/BigPicModal';
 const flashModeOrder = {
   off: 'on',
   on: 'auto',
-  auto: 'torch',
-  torch: 'off',
+  auto: 'off',
 };
 
 const wbOrder = {
@@ -387,7 +387,7 @@ class CameraScreen extends React.Component {
             {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
           </Text>
           <TouchableOpacity onPress={this.toggleFlash}>
-            <Icon name="flash" color="white" size={24} style={styles.topMenuIcon} />
+            <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={this.getRatios}>
             <MIcon name="aspect-ratio" color="white" size={24} style={styles.topMenuIcon} />
@@ -461,7 +461,7 @@ class CameraScreen extends React.Component {
           style={[{ alignSelf: 'flex-end', marginBottom: 6 }]}
           onPress={this.toggleFacing}
         >
-          <Icon name="refresh" color="white" size={24} style={styles.flipIcon} />
+          <IIcon name="ios-reverse-camera" color="white" size={38} style={styles.flipIcon} />
         </TouchableOpacity>
       </View >
     </RNCamera>
