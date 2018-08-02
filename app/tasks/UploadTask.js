@@ -5,6 +5,7 @@ import {
   storePhotos,
   retrieveOcrTextFile,
   storeOcrTextFile,
+  retrieveCurrentState,
 } from '../storage/DbHelper';
 import { getDirectories } from '../api/LibraryApi';
 
@@ -50,8 +51,8 @@ const uploadOcr = async (server, credentials, link, repo, parentDir) => {
 };
 
 const uploadPhoto = async (photo, server, credentials, link, repo, parentDir) => {
-  console.log(AppState.currentState);
-  if (AppState.currentState === 'active') return;
+  const isActive = await isForeground();
+  if (isActive) return;
   try {
     const uploadPhotoResult = await uploadRNFB(
       credentials,
@@ -84,8 +85,8 @@ const uploadPhoto = async (photo, server, credentials, link, repo, parentDir) =>
 };
 
 const uploadOcrTextFile = async (ocrTextFile, credentials, link, parentDir) => {
-  console.log(AppState.currentState);
-  if (AppState.currentState === 'active') return;
+  const isActive = await isForeground();
+  if (isActive) return;
   try {
     const uploadPhotoResult = await uploadRNFB(
       credentials,
@@ -113,6 +114,13 @@ const uploadOcrTextFile = async (ocrTextFile, credentials, link, parentDir) => {
       uploadOcrTextFile(ocrTextFile, credentials, link, parentDir);
     }
   }
+};
+
+const isForeground = async () => {
+  console.log(`AppState:${AppState.currentState}`);
+  const currentState = await retrieveCurrentState();
+  console.log(`currentState:${currentState}`);
+  return currentState === 'active';
 };
 
 const retrieveNetOpt = async (data) => {

@@ -74,3 +74,23 @@ export const storeOcrTextFile = async (md) => {
     console.log(error);
   }
 };
+
+export const retrieveCurrentState = async () => {
+  let currentState = 'none';
+  try {
+    currentState = await AsyncStorage.getItem('currentState');
+    return currentState;
+  } catch (error) {
+    console.log(error);
+    return currentState;
+  }
+};
+
+export const storeCurrentState = async (currentState) => {
+  try {
+    await AsyncStorage.setItem('currentState', JSON.stringify(currentState));
+  } catch (error) {
+    // Error saving data
+    console.log(error);
+  }
+};

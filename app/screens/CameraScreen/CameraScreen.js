@@ -26,6 +26,7 @@ import {
   storePhotos,
   retrieveOcrTextFile,
   storeOcrTextFile,
+  storeCurrentState,
 } from '../../storage/DbHelper';
 import { startService, stopService, createFile } from '../../tasks/OcrHelper';
 import CamColors from '../../common/CamColors';
@@ -134,9 +135,11 @@ class CameraScreen extends React.Component {
   _handleAppStateChange = (nextAppState) => {
     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       console.log('App has come to the foreground!');
+      storeCurrentState('active');
       stopService();
     } else if (this.state.appState.match(/active/) && nextAppState === 'background') {
       console.log('App has come to the background!');
+      storeCurrentState('background');
       startService();
     }
     this.setState({ appState: nextAppState });
