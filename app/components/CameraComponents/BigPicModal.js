@@ -3,7 +3,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { TouchableOpacity, Image, StatusBar, StyleSheet } from 'react-native';
-import CamColors from '../../common/CamColors';
 
 class BigPicModal extends React.Component {
   render() {
@@ -31,7 +30,7 @@ export default connect(mapStateToProps)(BigPicModal);
 const styles = StyleSheet.create({
   ocrLayer: {
     position: 'absolute',
-    top: 40 + StatusBar.currentHeight,
+    top: StatusBar.currentHeight,
     left: 0,
     right: 0,
     bottom: 0,

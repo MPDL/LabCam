@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: CamColors.colorWithAlpha('green2', 0.5),
-    // height: 120,
     paddingVertical: 6,
     justifyContent: 'center',
   },

@@ -15,6 +15,8 @@ import java.util.List;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
+    private String TAG = "NetworkChangeReceiver";
+
     @Override
     public void onReceive(final Context context, final Intent intent) {
 
@@ -36,7 +38,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE &&
                     networkInfo.isConnected()) {
                     // cellular is connected
-                    Log.e("NetworkChangeReceiver", " -- Cellular connected --- " );
+                    Log.e(TAG, " -- Cellular connected --- " );
                     startService(context, "cellular");
                 }
             }
@@ -44,19 +46,19 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             {
                 int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
                 if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
-                    Log.e("NetworkChangeReceiver", " ----- Wifi  Disconnected ----- ");
+                    Log.e(TAG, " ----- Wifi  Disconnected ----- ");
                     ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = cm.getActiveNetworkInfo();
                     if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE &&
                             networkInfo.isConnected()) {
                         // cellular is connected
-                        Log.e("NetworkChangeReceiver", " -- Cellular connected --- " );
+                        Log.e(TAG, " -- Cellular connected --- " );
                         startService(context, "cellular");
 
                     }
                 } else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
                     // Wifi is connected
-                    Log.e("NetworkChangeReceiver", " -- Wifi connected --- ");
+                    Log.e(TAG, " -- Wifi connected --- ");
                     startService(context, "wifi");
                 }
             }
@@ -87,11 +89,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     public static void startService(final Context context, final String internetType) {
 
-//        Intent serviceIntent = new Intent(context, MyTaskService.class);
-//        serviceIntent.putExtra("internetType", internetType);
-//        context.startService(serviceIntent);
-//        HeadlessJsTaskService.acquireWakeLockNow(context);
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -100,6 +97,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                         context.startService(serviceIntent);
                         HeadlessJsTaskService.acquireWakeLockNow(context);
                     }
-                }, 10000);
+                }, 8000);
     }
 }

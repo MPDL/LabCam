@@ -56,6 +56,7 @@ LibraryItem.propTypes = {
   onLibPress: PropTypes.func.isRequired,
   onDirPress: PropTypes.func.isRequired,
   libId: PropTypes.string.isRequired,
+  currentPaths: PropTypes.array.isRequired,
 };
 
 const styles = StyleSheet.create({

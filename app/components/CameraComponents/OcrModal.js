@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     backgroundColor: CamColors.colorWithAlpha('white', 0.5),
-    // borderRadius: 20,
     padding: 5,
   },
   ocrTopPanel: {

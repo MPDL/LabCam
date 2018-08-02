@@ -47,32 +47,8 @@ public class MyTaskService extends HeadlessJsTaskService {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-
-
-//    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-//            .setSmallIcon(R.drawable.app_images_icon_app)
-//            .setContentTitle("Service")
-//            .setContentText("Service running")
-//            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-//
-//    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//    notificationManager.notify(1, mBuilder.build());
-
-    SharedPreferences prefs = this.getSharedPreferences(
-            "time", Context.MODE_PRIVATE);
-
-    String dateTimeKey = "datetime";
-    Long time = prefs.getLong(dateTimeKey, 0l);
-
-    Long currentTime = System.currentTimeMillis();
-    Log.e("MyTaskService", String.valueOf(currentTime-time));
-    if (currentTime-time > 2000) {
-      prefs.edit().putLong(dateTimeKey, currentTime).apply();
-      Log.e("MyTaskService", "onStartCommand");
-      return super.onStartCommand(intent, flags, startId);
-    }else {
-      return START_STICKY;
-    }
+    Log.e("MyTaskService", "onStartCommand");
+    return super.onStartCommand(intent, flags, startId);
   }
 
 }

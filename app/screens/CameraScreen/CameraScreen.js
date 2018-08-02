@@ -295,6 +295,8 @@ class CameraScreen extends React.Component {
 
   uploadOcr = async (fileName) => {
     const { ocrTextOnPause } = this.props;
+    const { isScanning } = this.state;
+    if (isScanning) return;
     if (ocrTextOnPause === '') {
       this.toggleScan();
       return;
