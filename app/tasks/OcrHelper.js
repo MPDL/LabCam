@@ -53,3 +53,7 @@ export const startService = async () => {
 export const stopService = async () => {
   await RNTesseractOcr.stopService();
 };
+
+export const showNotification = async () => {
+  await RNTesseractOcr.showNotification();
+};

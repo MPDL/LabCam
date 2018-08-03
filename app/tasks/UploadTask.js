@@ -8,6 +8,7 @@ import {
   retrieveCurrentState,
 } from '../storage/DbHelper';
 import { getDirectories } from '../api/LibraryApi';
+import { showNotification } from './OcrHelper';
 
 const UploadTask = async (data) => {
   const netOpt = await retrieveNetOpt(data);
@@ -63,6 +64,7 @@ const uploadPhoto = async (photo, server, credentials, link, repo, parentDir) =>
     );
     console.log(`uploadPhoto: ${photo.fileName} ${uploadPhotoResult}`);
     if (uploadPhotoResult) {
+      showNotification();
       const photosAfter = await retrievePhotos();
       const uploadedPhotos = await getDirectories(server, credentials, repo, parentDir, 'f');
       const waitingList = photosAfter.filter(element => !uploadedPhotos.map(file => file.name).includes(element.fileName));
@@ -97,6 +99,7 @@ const uploadOcrTextFile = async (ocrTextFile, credentials, link, parentDir) => {
     );
     console.log(`uploadMd: ${ocrTextFile.fileName} ${uploadPhotoResult}`);
     if (uploadPhotoResult) {
+      showNotification();
       const mdAfter = await retrieveOcrTextFile();
       const mdFileList = mdAfter.filter(e => e.fileName !== ocrTextFile.fileName);
       await storeOcrTextFile(mdFileList);

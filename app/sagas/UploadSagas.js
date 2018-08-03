@@ -9,6 +9,7 @@ import {
   storeOcrTextFile,
 } from '../storage/DbHelper';
 import { getDirectories } from '../api/LibraryApi';
+import { showNotification } from '../tasks/OcrHelper';
 
 export function* uploadFile(action) {
   const { photo } = action;
@@ -46,6 +47,7 @@ function* uploadPhoto(authenticateResult, link, photo, parentDir) {
       const photos = yield retrievePhotos();
       yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
       console.log(`${photos.length} photos left`);
+      showNotification();
     }
   } catch (e) {
     console.log(e);
@@ -68,6 +70,7 @@ function* uploadOcrTextFile(authenticateResult, link, ocrTextFile, parentDir) {
       const ocrTextFileList = yield retrieveOcrTextFile();
       yield storeOcrTextFile(ocrTextFileList.filter(e => e.contentUri !== ocrTextFileList.contentUri));
       console.log(`${ocrTextFileList.length} mdFiles left`);
+      showNotification();
     }
   } catch (e) {
     console.log(e);
