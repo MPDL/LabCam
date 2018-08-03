@@ -29,7 +29,7 @@ import {
   storeOcrTextFile,
   storeCurrentState,
 } from '../../storage/DbHelper';
-import { startService, stopService, createFile } from '../../tasks/OcrHelper';
+import { startService, stopService, createFile, hasFlash } from '../../tasks/OcrHelper';
 import CamColors from '../../common/CamColors';
 import styles from './styles';
 import OcrModal from '../../components/CameraComponents/OcrModal';
@@ -53,6 +53,7 @@ const wbOrder = {
 
 class CameraScreen extends React.Component {
   state = {
+    hasFlash: false,
     flash: 'off',
     autoFocus: 'on',
     depth: 0,
@@ -72,6 +73,13 @@ class CameraScreen extends React.Component {
     ocrScanText: '',
     dateTime: 0,
   };
+
+  componentWillMount() {
+    hasFlash().then(flash =>
+      this.setState({
+        hasFlash: flash,
+      }));
+  }
 
   componentDidMount() {
     NetInfo.getConnectionInfo().then((connectionInfo) => {
@@ -386,9 +394,12 @@ class CameraScreen extends React.Component {
           <Text style={styles.photoHelper}>
             {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
           </Text>
-          <TouchableOpacity onPress={this.toggleFlash}>
-            <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
-          </TouchableOpacity>
+          {
+           this.state.hasFlash &&
+           <TouchableOpacity onPress={this.toggleFlash}>
+             <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
+           </TouchableOpacity>
+          }
           <TouchableOpacity onPress={this.getRatios}>
             <MIcon name="aspect-ratio" color="white" size={24} style={styles.topMenuIcon} />
           </TouchableOpacity>

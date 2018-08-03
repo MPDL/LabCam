@@ -57,3 +57,8 @@ export const stopService = async () => {
 export const showNotification = async () => {
   await RNTesseractOcr.showNotification();
 };
+
+export const hasFlash = async () => {
+  const flash = await RNTesseractOcr.hasFlash();
+  return flash;
+};
