@@ -17,3 +17,17 @@ export const login = (server, account, password) => {
     return Promise.reject(new Error(response.status));
   });
 };
+
+export const authPing = (server, authenticateResult) =>
+  fetch(`${server}auth/ping/`, {
+    method: 'GET',
+    headers: {
+      Authorization: authenticateResult,
+    },
+  }).then((response) => {
+    console.log(response);
+    if (response.ok) {
+      return response.json().then(data => data);
+    }
+    return Promise.reject(new Error(response.status));
+  });
