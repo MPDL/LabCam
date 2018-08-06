@@ -100,6 +100,8 @@ class LoginScreen extends Component {
       } else {
         authenticateAccount(account, password);
       }
+    } else {
+      Alert.alert('Login', 'Please check your Internet Connection');
     }
   };
 

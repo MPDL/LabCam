@@ -70,3 +70,8 @@ android/app/libs
 android/keystores/debug.keystore
 android/app/app.iml
 
+android/app/gradle/
+android/app/gradlew
+android/app/gradlew.bat
+package-lock.json
+android/labCam.iml
