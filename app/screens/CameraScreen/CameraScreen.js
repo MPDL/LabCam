@@ -391,18 +391,18 @@ class CameraScreen extends React.Component {
           <TouchableOpacity onPress={this.toggleOcr}>
             <Text style={OCRStyle}>OCR</Text>
           </TouchableOpacity>
-          <Text style={styles.photoHelper}>
+          {/* <Text style={styles.photoHelper}>
             {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
-          </Text>
+          </Text> */}
           {
            this.state.hasFlash &&
            <TouchableOpacity onPress={this.toggleFlash}>
              <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
            </TouchableOpacity>
           }
-          <TouchableOpacity onPress={this.getRatios}>
+          {/* <TouchableOpacity onPress={this.getRatios}>
             <MIcon name="aspect-ratio" color="white" size={24} style={styles.topMenuIcon} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     );

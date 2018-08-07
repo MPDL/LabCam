@@ -84,7 +84,7 @@ class ButtonSubmit extends Component {
       this.setState({ isLoading: false });
       this.buttonAnimated.setValue(0);
       this.growAnimated.setValue(0);
-    }, 2300);
+    }, 2000);
   }
 
   render() {
