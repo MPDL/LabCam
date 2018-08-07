@@ -30,6 +30,7 @@ const NAMED_COLORS = {
   darkPink: 'rgba(200, 40, 159, 1)',
   orange: 'rgba(247, 144, 77, 1)',
   salmon: 'rgba(243, 91, 89, 1)',
+  keeperRed: 'rgba(176, 65, 102, 1)',
 };
 
 const THEME_COLORS = {

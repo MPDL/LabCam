@@ -13,7 +13,9 @@ class OcrModal extends React.Component {
     } = this.props;
     const ocrResult = ocrTextOnPause === '' ? ocrScanText : ocrTextOnPause;
 
-    const togglePauseTextStyle = isScanning ? styles.pauseText : styles.resumeText;
+    const scanSwitchStyle = !isScanning
+      ? styles.scanSwitch
+      : [styles.scanSwitch, { backgroundColor: CamColors.red2 }];
 
     return (
       <View style={styles.ocrLayer}>
@@ -21,10 +23,13 @@ class OcrModal extends React.Component {
           <View style={styles.ocrModal}>
             <View style={styles.ocrTopPanel}>
               <Text style={styles.scanningText}>{isScanning ? 'Scanning...' : ''}</Text>
-              <TouchableOpacity style={styles.scanSwitch} onPress={toggleScan}>
-                <Text style={togglePauseTextStyle}>{isScanning ? 'Pause' : 'Resume'}</Text>
+              <TouchableOpacity style={scanSwitchStyle} onPress={toggleScan}>
+                <Text style={styles.toggleText}>{isScanning ? 'Pause' : 'Resume'}</Text>
               </TouchableOpacity>
             </View>
+            <Text style={styles.hintSaveText}>
+              {isScanning ? '' : 'OCR Text will be upload with next Photo'}
+            </Text>
             <ScrollView style={styles.ocrScrollView}>
               <Text textAlign="center">{ocrResult}</Text>
             </ScrollView>
@@ -85,21 +90,35 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
   },
-  scanSwitch: {},
+  scanSwitch: {
+    backgroundColor: CamColors.green2,
+    width: 80,
+    height: 30,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   ocrScrollView: {
     flex: 1,
     padding: 16,
   },
-  pauseText: {
+  toggleText: {
     fontSize: 16,
-    color: 'red',
-  },
-  resumeText: {
-    fontSize: 16,
-    color: CamColors.green2,
+    fontWeight: 'bold',
+    color: 'white',
   },
   scanningText: {
     fontSize: 16,
+    fontWeight: 'bold',
     color: CamColors.green2,
+  },
+  hintSaveText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: CamColors.red2,
+    textAlign: 'center',
+    marginTop: 16,
   },
 });
