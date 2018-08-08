@@ -15,7 +15,7 @@ class OcrModal extends React.Component {
 
     const scanSwitchStyle = !isScanning
       ? styles.scanSwitch
-      : [styles.scanSwitch, { backgroundColor: CamColors.red2 }];
+      : [styles.scanSwitch, { backgroundColor: CamColors.keeperRed }];
 
     return (
       <View style={styles.ocrLayer}>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   hintSaveText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: CamColors.red2,
+    color: CamColors.keeperRed,
     textAlign: 'center',
     marginTop: 16,
   },

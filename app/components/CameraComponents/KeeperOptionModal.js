@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableHighlight, StyleSheet, StatusBar } from 'react-native';
+import { View, TouchableHighlight, StyleSheet, StatusBar, Platform } from 'react-native';
 import Triangle from 'react-native-triangle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -10,6 +10,7 @@ import UploadActions from '../../redux/UploadRedux';
 import { SmallText } from '../../common/CamText';
 import CamColors from '../../common/CamColors';
 import CamFonts from '../../common/CamFonts';
+import { hasCellular } from '../../tasks/OcrHelper';
 
 class KeeperOptionModal extends React.Component {
   constructor(props) {
@@ -19,7 +20,13 @@ class KeeperOptionModal extends React.Component {
 
   toggleNetwork = () => {
     const { setNetOption, netOption } = this.props;
-    setNetOption(netOption === 'Wifi only' ? 'Cellular' : 'Wifi only');
+    if (Platform.OS === 'android') {
+      hasCellular().then((hasSim) => {
+        if (hasSim) {
+          setNetOption(netOption === 'Wifi only' ? 'Cellular' : 'Wifi only');
+        }
+      });
+    }
   };
 
   renderRow = (rowData, rowID, highlighted) => (
@@ -33,12 +40,20 @@ class KeeperOptionModal extends React.Component {
   );
 
   render() {
-    const { destination } = this.props;
+    const { destination, setNetOption } = this.props;
     const destinationText = destination
       ? destination.length > 15
         ? `${destination.substring(0, 13)}..`
         : destination
       : '';
+
+    if (Platform.OS === 'android') {
+      hasCellular().then((hasSim) => {
+        if (!hasSim) {
+          setNetOption('Wifi only');
+        }
+      });
+    }
 
     return (
       <View style={styles.root}>

@@ -62,3 +62,8 @@ export const hasFlash = async () => {
   const flash = await RNTesseractOcr.hasFlash();
   return flash;
 };
+
+export const hasCellular = async () => {
+  const cellular = await RNTesseractOcr.hasSimCard();
+  return cellular;
+};
