@@ -68,7 +68,7 @@ function* uploadOcrTextFile(authenticateResult, link, ocrTextFile, parentDir) {
       console.log(`${ocrTextFile.fileName} is uploaded`);
       console.log(uploadImgResult);
       const ocrTextFileList = yield retrieveOcrTextFile();
-      yield storeOcrTextFile(ocrTextFileList.filter(e => e.contentUri !== ocrTextFileList.contentUri));
+      yield storeOcrTextFile(ocrTextFileList.filter(e => e.contentUri !== ocrTextFile.contentUri));
       console.log(`${ocrTextFileList.length} mdFiles left`);
       showNotification();
     }
