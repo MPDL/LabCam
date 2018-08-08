@@ -26,6 +26,8 @@ class KeeperOptionModal extends React.Component {
           setNetOption(netOption === 'Wifi only' ? 'Cellular' : 'Wifi only');
         }
       });
+    } else {
+      setNetOption(netOption === 'Wifi only' ? 'Cellular' : 'Wifi only');
     }
   };
 
