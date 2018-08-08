@@ -22,12 +22,21 @@ export function* startup(action) {
     }
   } catch (error) {
     console.log(error);
-    yield put(AccountsActions.setAuthenticateResult(null));
-    yield put(NavigationActions.init({
-      params: {
-        authenticateResult: null,
-        destinationLibrary,
-      },
-    }));
+    if (error.message === '401') {
+      yield put(AccountsActions.setAuthenticateResult(null));
+      yield put(NavigationActions.init({
+        params: {
+          authenticateResult: null,
+          destinationLibrary,
+        },
+      }));
+    } else {
+      yield put(NavigationActions.init({
+        params: {
+          authenticateResult,
+          destinationLibrary,
+        },
+      }));
+    }
   }
 }
