@@ -67,3 +67,8 @@ export const hasCellular = async () => {
   const cellular = await RNTesseractOcr.hasSimCard();
   return cellular;
 };
+
+export const query = async () => {
+  const result = await RNTesseractOcr.query();
+  return result;
+};

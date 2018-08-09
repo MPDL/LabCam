@@ -7,7 +7,9 @@
 .vscode
 
 # dependencies
-/node_modules
+!node_modules/
+node_modules/*
+!node_modules/react-native-tesseract-ocr/
 
 # misc
 .env.local
@@ -60,7 +62,6 @@ project.xcworkspace
 local.properties
 
 # node.js
-node_modules/
 npm-debug.log
 
 # BUCK
