@@ -88,7 +88,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     public static void startService(final Context context, final String internetType) {
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {

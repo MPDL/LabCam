@@ -8,6 +8,7 @@ import LibraryActions from '../../redux/LibraryRedux';
 import LibraryItem from '../../components/LibraryComponents/LibraryItem';
 import { SmallText } from '../../common/CamText';
 import styles from './styles';
+import { requestReadPermission } from '../../tasks/PermissionHelper';
 
 class LibraryScreen extends Component {
   constructor(props) {
@@ -23,7 +24,9 @@ class LibraryScreen extends Component {
 
   componentDidMount() {
     this._s0 = this.props.navigation.addListener('willFocus', this._onWF);
+    requestReadPermission();
   }
+
   componentWillUnmount() {
     this._s0.remove();
   }

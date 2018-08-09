@@ -68,6 +68,8 @@ buck-out/
 \.buckd/
 android/app/libs
 android/keystores/debug.keystore
+android/app/my-release-key.keystore
+
 android/app/app.iml
 
 android/app/gradle/
@@ -75,3 +77,8 @@ android/app/gradlew
 android/app/gradlew.bat
 package-lock.json
 android/labCam.iml
+android/gradle.properties
+android/t.txt
+
+android/app/src/main/assets/index.android.bundle
+android/app/src/main/assets/index.android.bundle.meta
