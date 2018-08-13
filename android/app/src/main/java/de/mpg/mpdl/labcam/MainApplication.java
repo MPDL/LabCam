@@ -1,6 +1,9 @@
 package de.mpg.mpdl.labcam;
 
 import android.app.Application;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 
 import com.facebook.react.ReactApplication;
 import com.reactlibrary.RNTesseractOcrPackage;
@@ -17,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
+
+  private NetworkChangeReceiver networkReceiver = new NetworkChangeReceiver();
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -51,5 +56,22 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+
+    IntentFilter filter = new IntentFilter();
+    filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+    filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+
+    registerReceiver(
+            networkReceiver,
+            filter
+    );
   }
+
+  @Override
+  public void onTerminate() {
+    super.onTerminate();
+    unregisterReceiver(networkReceiver);
+  }
+
+
 }
