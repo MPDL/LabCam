@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   triangle: {
-    marginTop: 40 + StatusBar.currentHeight,
+    marginTop: Platform.OS === 'android' ? 40 + StatusBar.currentHeight : 60,
     marginHorizontal: 20,
   },
   container: {

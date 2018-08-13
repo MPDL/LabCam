@@ -11,6 +11,7 @@ import {
   CameraRoll,
   NetInfo,
   AppState,
+  Platform,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { connect } from 'react-redux';
@@ -75,10 +76,16 @@ class CameraScreen extends React.Component {
   };
 
   componentWillMount() {
-    hasFlash().then(flash =>
+    if (Platform.OS === 'android') {
+      hasFlash().then(flash =>
+        this.setState({
+          hasFlash: flash,
+        }));
+    } else {
       this.setState({
-        hasFlash: flash,
-      }));
+        hasFlash: true,
+      });
+    }
   }
 
   componentDidMount() {
@@ -387,22 +394,23 @@ class CameraScreen extends React.Component {
           />
         </TouchableOpacity>
 
+
         <View style={styles.cameraOption}>
-          <TouchableOpacity onPress={this.toggleOcr}>
-            <Text style={OCRStyle}>OCR</Text>
-          </TouchableOpacity>
-          {/* <Text style={styles.photoHelper}>
-            {`${this.state.netInfo} ${this.state.countClick}/${this.state.countTakePhoto}`}
-          </Text> */}
           {
-           this.state.hasFlash &&
-           <TouchableOpacity onPress={this.toggleFlash}>
-             <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
-           </TouchableOpacity>
+            Platform.OS === 'android' &&
+            <TouchableOpacity onPress={this.toggleOcr}>
+              <Text style={OCRStyle}>OCR</Text>
+            </TouchableOpacity>
+          }
+          {
+            this.state.hasFlash &&
+            <TouchableOpacity onPress={this.toggleFlash}>
+              <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
+            </TouchableOpacity>
           }
           {/* <TouchableOpacity onPress={this.getRatios}>
-            <MIcon name="aspect-ratio" color="white" size={24} style={styles.topMenuIcon} />
-          </TouchableOpacity> */}
+              <MIcon name="aspect-ratio" color="white" size={24} style={styles.topMenuIcon} />
+            </TouchableOpacity> */}
         </View>
       </View>
     );
