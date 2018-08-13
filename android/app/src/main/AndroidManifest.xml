@@ -39,13 +39,11 @@
         </activity>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
-        <service android:enabled="true" android:name=".MyTaskService" />
-
         <service
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"
             android:enabled="true"
-            android:name=".NetService" />
+            android:name="com.reactlibrary.NetService" />
 
     </application>
 

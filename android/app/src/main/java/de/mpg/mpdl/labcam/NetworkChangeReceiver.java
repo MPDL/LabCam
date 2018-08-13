@@ -1,7 +1,10 @@
 package de.mpg.mpdl.labcam;
 
 import android.app.ActivityManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -88,13 +91,20 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     public static void startService(final Context context, final String internetType) {
+
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        Intent serviceIntent = new Intent(context, MyTaskService.class);
-                        serviceIntent.putExtra("internetType", internetType);
-                        context.startService(serviceIntent);
-                        HeadlessJsTaskService.acquireWakeLockNow(context);
+                        try {
+                            JobScheduler jobScheduler =
+                                    (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                            jobScheduler.schedule(new JobInfo.Builder(0,
+                                    new ComponentName(context, Class.forName("com.reactlibrary.NetService")))
+                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                                    .build());
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }, 8000);
     }

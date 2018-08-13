@@ -72,3 +72,7 @@ export const query = async () => {
   const result = await RNTesseractOcr.query();
   return result;
 };
+
+export const test = async () => {
+  await RNTesseractOcr.test();
+};

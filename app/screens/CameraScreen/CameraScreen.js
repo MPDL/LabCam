@@ -29,7 +29,7 @@ import {
   storeOcrTextFile,
   storeCurrentState,
 } from '../../storage/DbHelper';
-import { startService, stopService, createFile, hasFlash, query } from '../../tasks/OcrHelper';
+import { startService, stopService, createFile, hasFlash } from '../../tasks/OcrHelper';
 import CamColors from '../../common/CamColors';
 import styles from './styles';
 import OcrModal from '../../components/CameraComponents/OcrModal';
@@ -79,8 +79,6 @@ class CameraScreen extends React.Component {
       this.setState({
         hasFlash: flash,
       }));
-
-    query();
   }
 
   componentDidMount() {
