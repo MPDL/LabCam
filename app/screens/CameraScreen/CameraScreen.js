@@ -51,6 +51,14 @@ const wbOrder = {
   incandescent: 'auto',
 };
 
+const options = {
+  fixOrientation: true,
+  // quality: 1,
+  // base64: true,
+  // exif: true,
+  skipProcessing: true,
+};
+
 class CameraScreen extends React.Component {
   state = {
     hasFlash: false,
@@ -246,7 +254,7 @@ class CameraScreen extends React.Component {
       isCameraReady: false,
     });
     if (this.camera) {
-      this.camera.takePictureAsync({ quality: 1 }).then((photo) => {
+      this.camera.takePictureAsync(options).then((photo) => {
         console.log(photo);
         this.setState({
           isCameraReady: true,
@@ -424,7 +432,6 @@ class CameraScreen extends React.Component {
       focusDepth={this.state.depth}
       permissionDialogTitle="Permission to use camera"
       permissionDialogMessage="We need your permission to use your camera phone"
-      exif
       onTextRecognized={this.state.ocrEnable}
     >
       <TouchableOpacity
