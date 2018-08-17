@@ -70,6 +70,8 @@ buck-out/
 android/app/libs
 android/keystores/debug.keystore
 android/app/my-release-key.keystore
+android/app/LabCamKey.jks
+
 
 android/app/app.iml
 

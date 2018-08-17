@@ -1,4 +1,5 @@
 import RNFetchBlob from 'react-native-fetch-blob';
+import { Alert } from 'react-native';
 
 export const getUploadLink = (repo, server, credentials) =>
   fetch(`${server}repos/${repo}/upload-link/`, {
@@ -72,9 +73,12 @@ export const uploadRNFB = (credentials, link, photo, photoName, parentDir) => {
       if (response.respInfo && response.respInfo.status === 200) {
         return 200;
       }
-      return Promise.reject(new Error(response.status));
+      return Promise.reject(new Error(response.data));
     })
     .catch((err) => {
-      console.log(err);
+      console.log(err.message);
+      if (err.message && err.message.includes("Parent dir doesn't exist")) {
+        Alert.alert('Upload not successful', "Parent dir doesn't exist");
+      }
     });
 };
