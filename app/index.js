@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 
 import Navigator from './config/routes';
 import createStore from './redux';
-import './common/ReactotronConfig';
 
 const store = createStore();
 console.disableYellowBox = true;
