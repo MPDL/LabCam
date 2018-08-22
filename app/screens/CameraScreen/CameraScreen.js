@@ -36,6 +36,7 @@ import styles from './styles';
 import OcrModal from '../../components/CameraComponents/OcrModal';
 import KeeperOptionModal from '../../components/CameraComponents/KeeperOptionModal';
 import BigPicModal from '../../components/CameraComponents/BigPicModal';
+import WarningModal from '../../components/CameraComponents/WarningModal';
 
 const flashModeOrder = {
   off: 'on',
@@ -519,6 +520,9 @@ class CameraScreen extends React.Component {
             toggleBigPic={this.toggleBigPic}
             uri={this.state.lastPhotoUri}
           />
+        }
+        {Platform.OS === 'ios' && this.state.netInfo === 'none' && !this.state.keeperOptionVisible &&
+          <WarningModal />
         }
         {this.renderCamera()}
       </SafeAreaView>
