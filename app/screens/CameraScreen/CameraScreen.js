@@ -53,13 +53,18 @@ const wbOrder = {
   incandescent: 'auto',
 };
 
-const options = {
+const androidOptions = {
   fixOrientation: true,
   // quality: 1,
   // base64: true,
   // exif: true,
   skipProcessing: true,
 };
+
+const iosOptions = {
+  forceUpOrientation: true,
+};
+
 
 class CameraScreen extends React.Component {
   state = {
@@ -261,6 +266,8 @@ class CameraScreen extends React.Component {
       countClick: this.state.countClick + 1,
       isCameraReady: false,
     });
+
+    const options = Platform.OS === 'android' ? androidOptions : iosOptions;
     if (this.camera) {
       this.camera.takePictureAsync(options).then((photo) => {
         console.log(photo);

@@ -10,6 +10,8 @@
 !node_modules/
 node_modules/*
 !node_modules/react-native-tesseract-ocr/
+node_modules/react-native-tesseract-ocr/android/src/main/res/drawable-hdpi/
+node_modules/react-native-tesseract-ocr/ios/RNTesseractOcr.xcodeproj/
 
 # misc
 .env.local
