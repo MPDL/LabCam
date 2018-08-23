@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
   cameraIcon: {
     backgroundColor: 'black',
     padding: 15,
-    borderRadius: 30,
+    borderRadius: 29,
+    overflow: 'hidden',
     zIndex: 99,
   },
   flipIcon: {
