@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableHighlight, StyleSheet, StatusBar, Platform } from 'react-native';
+import { SafeAreaView, View, TouchableHighlight, StyleSheet, StatusBar, Platform } from 'react-native';
 import Triangle from 'react-native-triangle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -58,7 +58,7 @@ class KeeperOptionModal extends React.Component {
     }
 
     return (
-      <View style={styles.root}>
+      <SafeAreaView style={styles.root}>
         <Triangle
           width={20}
           height={12}
@@ -85,7 +85,7 @@ class KeeperOptionModal extends React.Component {
             Logout
           </SmallText>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   triangle: {
-    marginTop: Platform.OS === 'android' ? 40 + StatusBar.currentHeight : 60,
+    marginTop: Platform.OS === 'android' ? 40 + StatusBar.currentHeight : 40,
     marginHorizontal: 20,
   },
   container: {

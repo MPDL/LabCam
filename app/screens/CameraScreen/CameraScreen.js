@@ -165,11 +165,20 @@ class CameraScreen extends React.Component {
     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       console.log('App has come to the foreground!');
       storeCurrentState('active');
-      stopService();
+      if (Platform.OS === 'android') {
+        stopService();
+      }
+      NetInfo.getConnectionInfo().then((connectionInfo) => {
+        this.setState({
+          netInfo: connectionInfo.type,
+        });
+      });
     } else if (this.state.appState.match(/active/) && nextAppState === 'background') {
       console.log('App has come to the background!');
       storeCurrentState('background');
-      startService();
+      if (Platform.OS === 'android') {
+        startService();
+      }
     }
     this.setState({ appState: nextAppState });
   };
@@ -392,6 +401,28 @@ class CameraScreen extends React.Component {
     return destinationLibrary.name;
   };
 
+  isShowWarning = () => {
+    const { netInfo, keeperOptionVisible, bigPicVisible } = this.state;
+    const { netOption } = this.props;
+    if (Platform.OS === 'ios' && !keeperOptionVisible && !bigPicVisible) {
+      switch (netOption) {
+        case 'Wifi only':
+          if (netInfo !== 'wifi') {
+            return true;
+          }
+          break;
+        case 'Cellular':
+          if (netInfo !== 'wifi' && netInfo !== 'cellular') {
+            return true;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    return false;
+  }
+
   renderTopMenu = () => {
     const OCRStyle = this.state.ocrEnable === false ?
       [styles.photoHelper, { color: 'grey' }]
@@ -528,7 +559,7 @@ class CameraScreen extends React.Component {
             uri={this.state.lastPhotoUri}
           />
         }
-        {Platform.OS === 'ios' && this.state.netInfo === 'none' && !this.state.keeperOptionVisible &&
+        {this.isShowWarning() &&
           <WarningModal />
         }
         {this.renderCamera()}

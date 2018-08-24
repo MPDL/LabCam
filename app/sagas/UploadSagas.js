@@ -1,5 +1,6 @@
 import { call, select, put } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
+import { Platform } from 'react-native';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import UploadActions from '../redux/UploadRedux';
 import {
@@ -47,7 +48,9 @@ function* uploadPhoto(authenticateResult, link, photo, parentDir) {
       const photos = yield retrievePhotos();
       yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
       console.log(`${photos.length} photos left`);
-      showNotification();
+      if (Platform.OS === 'android') {
+        showNotification();
+      }
     }
   } catch (e) {
     console.log(e);
@@ -70,7 +73,9 @@ function* uploadOcrTextFile(authenticateResult, link, ocrTextFile, parentDir) {
       const ocrTextFileList = yield retrieveOcrTextFile();
       yield storeOcrTextFile(ocrTextFileList.filter(e => e.contentUri !== ocrTextFile.contentUri));
       console.log(`${ocrTextFileList.length} mdFiles left`);
-      showNotification();
+      if (Platform.OS === 'android') {
+        showNotification();
+      }
     }
   } catch (e) {
     console.log(e);

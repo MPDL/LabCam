@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { TouchableOpacity, Image, StatusBar, StyleSheet } from 'react-native';
+import { Platform, TouchableOpacity, Image, StatusBar, StyleSheet } from 'react-native';
 
 class BigPicModal extends React.Component {
   render() {
@@ -30,10 +30,12 @@ export default connect(mapStateToProps)(BigPicModal);
 const styles = StyleSheet.create({
   ocrLayer: {
     position: 'absolute',
-    top: StatusBar.currentHeight,
+    top: Platform.OS === 'android' ? StatusBar.currentHeight : 24,
     left: 0,
     right: 0,
     bottom: 0,
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
