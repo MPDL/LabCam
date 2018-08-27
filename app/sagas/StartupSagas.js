@@ -1,4 +1,5 @@
 import { select, put, call } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
 import { NavigationActions } from 'react-navigation';
 import { authPing } from '../api/AccountsApi';
 import AccountsActions from '../redux/AccountsRedux';
@@ -9,8 +10,8 @@ export function* startup(action) {
   const { destinationLibrary } = yield select(state => state.library);
 
   try {
+    yield delay(800);
     const pingResult = yield call(authPing, server, authenticateResult);
-
     if (pingResult) {
       console.log(pingResult);
       yield put(NavigationActions.init({

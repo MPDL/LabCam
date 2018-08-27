@@ -44,7 +44,7 @@ export const AppNavigator = StackNavigator(
     headerMode: 'none',
     transitionConfig: () => ({
       transitionSpec: {
-        duration: 100,
+        duration: 200,
         easing: Easing.out(Easing.poly(4)),
         timing: Animated.timing,
         useNativeDriver: true,
