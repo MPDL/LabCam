@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -43,6 +42,7 @@
 		C642869CC96A446ABA75179C /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 01B466D1BCB34A6A90BA06AA /* MaterialIcons.ttf */; };
 		DA856E541E3545AE8F9BC4CE /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 14C06CA971D14B5C953DDAC0 /* libz.tbd */; };
 		EAF8817079FD4AB6B5B20036 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E6470E4F926E4181BE14963A /* libc++.tbd */; };
+		AA14E078761346F78381362F /* libRNLabCamLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 450BF2DE32D14B1BB9FEC3A9 /* libRNLabCamLibrary.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -407,6 +407,8 @@
 		EDC6B51AE3BA4A3599933415 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		F2519A11C4094EF0A351D68B /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCamera.a; sourceTree = "<group>"; };
 		F6941E0925384B40A2E1D084 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
+		713DDDF9967B409690FA9990 /* RNLabCamLibrary.xcodeproj */ = {isa = PBXFileReference; name = "RNLabCamLibrary.xcodeproj"; path = "../node_modules/react-native-lab-cam-library/ios/RNLabCamLibrary.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		450BF2DE32D14B1BB9FEC3A9 /* libRNLabCamLibrary.a */ = {isa = PBXFileReference; name = "libRNLabCamLibrary.a"; path = "libRNLabCamLibrary.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -442,6 +444,7 @@
 				50AE88874F0E42B3A5DFCD25 /* libRNVectorIcons.a in Frameworks */,
 				EAF8817079FD4AB6B5B20036 /* libc++.tbd in Frameworks */,
 				DA856E541E3545AE8F9BC4CE /* libz.tbd in Frameworks */,
+				AA14E078761346F78381362F /* libRNLabCamLibrary.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,6 +635,7 @@
 				638BB57164EF44F0B77EFCA0 /* RNFS.xcodeproj */,
 				C0C219A470544FB587389F60 /* RNVectorIcons.xcodeproj */,
 				C1CD35C8942E4D5396A60A65 /* RealmReact.xcodeproj */,
+				713DDDF9967B409690FA9990 /* RNLabCamLibrary.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1295,12 +1299,14 @@
 					"$(SRCROOT)/../node_modules/react-native-vector-icons/RNVectorIconsManager",
 					"$(SRCROOT)/../node_modules/react-native-tesseract-ocr/ios",
 					"$(SRCROOT)/../node_modules/realm/src/**",
+					"$(SRCROOT)/../node_modules/react-native-lab-cam-library/ios",
 				);
 				INFOPLIST_FILE = LabCamTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1331,12 +1337,14 @@
 					"$(SRCROOT)/../node_modules/react-native-vector-icons/RNVectorIconsManager",
 					"$(SRCROOT)/../node_modules/react-native-tesseract-ocr/ios",
 					"$(SRCROOT)/../node_modules/realm/src/**",
+					"$(SRCROOT)/../node_modules/react-native-lab-cam-library/ios",
 				);
 				INFOPLIST_FILE = LabCamTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1370,6 +1378,7 @@
 					"$(SRCROOT)/../node_modules/react-native-vector-icons/RNVectorIconsManager",
 					"$(SRCROOT)/../node_modules/react-native-tesseract-ocr/ios",
 					"$(SRCROOT)/../node_modules/realm/src/**",
+					"$(SRCROOT)/../node_modules/react-native-lab-cam-library/ios",
 				);
 				INFOPLIST_FILE = LabCam/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1402,6 +1411,7 @@
 					"$(SRCROOT)/../node_modules/react-native-vector-icons/RNVectorIconsManager",
 					"$(SRCROOT)/../node_modules/react-native-tesseract-ocr/ios",
 					"$(SRCROOT)/../node_modules/realm/src/**",
+					"$(SRCROOT)/../node_modules/react-native-lab-cam-library/ios",
 				);
 				INFOPLIST_FILE = LabCam/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

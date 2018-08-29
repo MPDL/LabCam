@@ -156,7 +156,7 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-tesseract-ocr')
+    compile project(':react-native-lab-cam-library')
     compile project(':react-native-vector-icons')
     compile project(':react-native-fs')
     compile project(':react-native-fetch-blob')

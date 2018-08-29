@@ -1,4 +1,4 @@
-import RNTesseractOcr from 'react-native-tesseract-ocr';
+import RNLabCamLibrary from 'react-native-lab-cam-library';
 import RNFS from 'react-native-fs';
 
 const tessOptions = {
@@ -26,7 +26,7 @@ export const recognizeOcr = async (uri, imgName) => {
 };
 
 const recognize = imgOriginalPath =>
-  RNTesseractOcr.recognize(imgOriginalPath, 'LANG_ENGLISH', tessOptions)
+  RNLabCamLibrary.recognize(imgOriginalPath, 'LANG_ENGLISH', tessOptions)
     .then(result =>
     // console.log('OCR Result: ', result);
       result)
@@ -47,24 +47,24 @@ export const createFile = (text) => {
 };
 
 export const startService = async () => {
-  await RNTesseractOcr.startService();
+  await RNLabCamLibrary.startService();
 };
 
 export const stopService = async () => {
-  await RNTesseractOcr.stopService();
+  await RNLabCamLibrary.stopService();
 };
 
 export const showNotification = async () => {
-  await RNTesseractOcr.showNotification();
+  await RNLabCamLibrary.showNotification();
 };
 
 export const hasFlash = async () => {
-  const flash = await RNTesseractOcr.hasFlash();
+  const flash = await RNLabCamLibrary.hasFlash();
   return flash;
 };
 
 export const hasCellular = async () => {
-  const cellular = await RNTesseractOcr.hasSimCard();
+  const cellular = await RNLabCamLibrary.hasSimCard();
   return cellular;
 };
 

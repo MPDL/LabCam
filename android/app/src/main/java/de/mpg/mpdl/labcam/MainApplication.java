@@ -6,7 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 
 import com.facebook.react.ReactApplication;
-import com.reactlibrary.RNTesseractOcrPackage;
+import com.reactlibrary.RNLabCamLibraryPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.rnfs.RNFSPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
@@ -33,7 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new RNTesseractOcrPackage(),
+            new RNLabCamLibraryPackage(),
             new VectorIconsPackage(),
             new RNFSPackage(),
             new RNFetchBlobPackage(),
