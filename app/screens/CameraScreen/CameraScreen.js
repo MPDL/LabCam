@@ -325,10 +325,12 @@ class CameraScreen extends React.Component {
 
         storePhotos(photos).then(() => {
           if (this.state.netInfo !== 'none') {
-            this.uploadToKeeper({
-              fileName,
-              contentUri,
-            });
+            setTimeout(() => {
+              this.uploadToKeeper({
+                fileName,
+                contentUri,
+              });
+            }, 2000);
           }
         });
       });
@@ -407,7 +409,7 @@ class CameraScreen extends React.Component {
     if (Platform.OS === 'ios' && !keeperOptionVisible && !bigPicVisible) {
       switch (netOption) {
         case 'Wifi only':
-          if (netInfo !== 'wifi') {
+          if (netInfo && netInfo !== 'wifi' && netInfo !== 'unknown') { // 'unknown at init'
             return true;
           }
           break;
