@@ -1,5 +1,10 @@
 
 #import "RNLabCamLibrary.h"
+#import <React/RCTLog.h>
+#import <React/RCTAsyncLocalStorage.h>
+
+@interface RNLabCamLibrary()
+@end
 
 @implementation RNLabCamLibrary
 
@@ -8,6 +13,9 @@
     return dispatch_get_main_queue();
 }
 RCT_EXPORT_MODULE()
+RCT_EXPORT_METHOD(addEvent)
+{
+}
 
 @end
   

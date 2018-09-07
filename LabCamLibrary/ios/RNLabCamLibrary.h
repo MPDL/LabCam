@@ -4,8 +4,8 @@
 #else
 #import <React/RCTBridgeModule.h>
 #endif
+#import <React/RCTAsyncLocalStorage.h>
 
 @interface RNLabCamLibrary : NSObject <RCTBridgeModule>
-
 @end
   
