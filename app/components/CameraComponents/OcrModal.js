@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 80,
+    height: '80%',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',

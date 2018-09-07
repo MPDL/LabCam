@@ -17,12 +17,13 @@
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/../../node_modules/react-native-lab-cam-library/android/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/../../node_modules/react-native-lab-cam-library/android/src/main/res" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/src/main/res" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/../../node_modules/react-native-lab-cam-library/android/src/main/assets" />
         <option name="PROJECT_TYPE" value="1" />
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/classes/debug" />
     <output-test url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/classes/test/debug" />
     <exclude-output />
@@ -187,7 +188,7 @@
     <content url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/src/testDebug/shaders">
       <sourceFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/src/testDebug/shaders" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Android API 26 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.facebook.fresco:fbcore-1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.fresco:drawee-1.3.0" level="project" />
@@ -225,6 +226,5 @@
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp-urlconnection:3.6.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.fresco:imagepipeline-1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.retrofit2:retrofit:2.2.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: android-android-26" level="project" />
   </component>
 </module>

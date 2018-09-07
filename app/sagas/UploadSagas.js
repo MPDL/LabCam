@@ -115,3 +115,28 @@ export function* batchUpload(action) {
     console.log(e);
   }
 }
+
+export function* syncUploadProgress(action) {
+  const { server, authenticateResult } = yield select(state => state.accounts);
+  const { destinationLibrary, parentDir } = yield select(state => state.library);
+
+  try {
+    const files = yield call(
+      getDirectories,
+      server,
+      authenticateResult,
+      destinationLibrary.id,
+      parentDir,
+      'f',
+    );
+    const photos = yield retrievePhotos();
+    const waitingPhotoList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
+    storePhotos(waitingPhotoList);
+
+    const mdFiles = yield retrieveOcrTextFile();
+    const waitingTextFileList = mdFiles.filter(element => !files.map(file => file.name).includes(element.fileName));
+    storeOcrTextFile(waitingTextFileList);
+  } catch (e) {
+    console.log(e);
+  }
+}

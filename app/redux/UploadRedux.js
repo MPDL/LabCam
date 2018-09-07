@@ -5,6 +5,7 @@ const { Types, Creators } = createActions({
   uploadFile: ['photo'],
   setPhotos: ['photos'],
   batchUpload: ['photos'],
+  syncUploadProgress: null,
   setNetOption: ['netOption'],
   setOcrTextOnPause: ['ocrTextOnPause'],
 });

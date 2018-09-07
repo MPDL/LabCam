@@ -167,6 +167,8 @@ class CameraScreen extends React.Component {
       storeCurrentState('active');
       if (Platform.OS === 'android') {
         stopService();
+      } else if (Platform.OS === 'ios') {
+        this.props.syncUploadProgress(); // ios background db write bug
       }
       NetInfo.getConnectionInfo().then((connectionInfo) => {
         this.setState({
@@ -446,7 +448,6 @@ class CameraScreen extends React.Component {
 
         <View style={styles.cameraOption}>
           {
-            Platform.OS === 'android' &&
             <TouchableOpacity onPress={this.toggleOcr}>
               <Text style={OCRStyle}>OCR</Text>
             </TouchableOpacity>
@@ -574,6 +575,7 @@ CameraScreen.propTypes = {
   paths: PropTypes.array.isRequired,
   libraries: PropTypes.array.isRequired,
   batchUpload: PropTypes.func.isRequired,
+  syncUploadProgress: PropTypes.func.isRequired,
   uploadFile: PropTypes.func.isRequired,
   setAuthenticateResult: PropTypes.func.isRequired,
   netOption: PropTypes.string.isRequired,
@@ -596,6 +598,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   uploadFile: photo => dispatch(UploadActions.uploadFile(photo)),
   batchUpload: photos => dispatch(UploadActions.batchUpload(photos)),
+  syncUploadProgress: () => dispatch(UploadActions.syncUploadProgress()),
   fetchLibraries: () => dispatch(LibraryActions.fetchLibraries()),
   setDestinationLibrary: destinationLibrary =>
     dispatch(LibraryActions.setDestinationLibrary(destinationLibrary)),
