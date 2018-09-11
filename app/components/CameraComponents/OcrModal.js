@@ -2,9 +2,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, ScrollView, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, StatusBar, Dimensions, Platform, StyleSheet } from 'react-native';
 import CamColors from '../../common/CamColors';
 import UploadActions from '../../redux/UploadRedux';
+import { isIphoneX } from '../iphoneXHelper';
 
 class OcrModal extends React.Component {
   render() {
@@ -13,12 +14,16 @@ class OcrModal extends React.Component {
     } = this.props;
     const ocrResult = ocrTextOnPause === '' ? ocrScanText : ocrTextOnPause;
 
+    const ocrLayerStyle = Platform.OS === 'android'
+      ? styles.ocrLayer
+      : isIphoneX() ? styles.ocrLayerIosX : styles.ocrLayerIos;
+
     const scanSwitchStyle = !isScanning
       ? styles.scanSwitch
       : [styles.scanSwitch, { backgroundColor: CamColors.keeperRed }];
 
     return (
-      <View style={styles.ocrLayer}>
+      <View style={ocrLayerStyle}>
         {this.props.ocrEnable && (
           <View style={styles.ocrModal}>
             <View style={styles.ocrTopPanel}>
@@ -69,7 +74,29 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 80,
-    height: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 99,
+  },
+  ocrLayerIos: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
+    bottom: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 99,
+  },
+  ocrLayerIosX: {
+    position: 'absolute',
+    top: 40 + StatusBar.currentHeight,
+    left: 0,
+    right: 0,
+    bottom: 100,
+    height: Dimensions.get('window').height - 186,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
