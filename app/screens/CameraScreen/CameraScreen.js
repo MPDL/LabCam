@@ -36,7 +36,7 @@ import styles from './styles';
 import OcrModal from '../../components/CameraComponents/OcrModal';
 import KeeperOptionModal from '../../components/CameraComponents/KeeperOptionModal';
 import BigPicModal from '../../components/CameraComponents/BigPicModal';
-import WarningModal from '../../components/CameraComponents/WarningModal';
+// import WarningModal from '../../components/CameraComponents/WarningModal';
 
 const flashModeOrder = {
   off: 'on',
@@ -64,7 +64,6 @@ const androidOptions = {
 const iosOptions = {
   forceUpOrientation: true,
 };
-
 
 class CameraScreen extends React.Component {
   state = {
@@ -188,6 +187,7 @@ class CameraScreen extends React.Component {
   toggleKeeperOption = () => {
     this.setState({
       keeperOptionVisible: !this.state.keeperOptionVisible,
+      ocrEnable: false,
     });
   };
 
@@ -212,11 +212,15 @@ class CameraScreen extends React.Component {
   toggleOcr = () => {
     const { setOcrTextOnPause } = this.props;
     this.setState({
+      keeperOptionVisible: false,
+    });
+
+    this.setState({
       ocrEnable:
         this.state.ocrEnable === false
           ? (d) => {
             if (Date.now() - this.state.dateTime > 3000) {
-              const ocrScanText = d.textBlocks.map(e => e.value).reduce((prev, cur) =>
+              const ocrScanText = d.textBlocks.sort((a, b) => a.bounds.origin.y - b.bounds.origin.y).map(e => e.value).reduce((prev, cur) =>
                 `${prev}\n${cur}`, '');
               this.setState({
                 ocrScanText,
@@ -224,7 +228,6 @@ class CameraScreen extends React.Component {
               this.setState({
                 dateTime: Date.now(),
               });
-              console.log(d);
             }
           }
           : false,
@@ -348,12 +351,13 @@ class CameraScreen extends React.Component {
       this.toggleScan();
       return;
     }
-    const contentUri = await createFile(ocrTextOnPause);
-    const ocrTextFileList = await retrieveOcrTextFile();
     const mdFileName = fileName.replace('jpg', 'md');
+    const contentUri = await createFile(ocrTextOnPause, mdFileName);
+    const ocrTextFileList = await retrieveOcrTextFile();
     ocrTextFileList.push({
       fileName: mdFileName,
       contentUri,
+      text: ocrTextOnPause,
     });
     storeOcrTextFile(ocrTextFileList);
     if (this.state.netInfo !== 'none') {
@@ -377,13 +381,38 @@ class CameraScreen extends React.Component {
   };
 
   logout = () => {
-    Alert.alert('Logout', 'Are you sure to logout?', [
+    retrievePhotos().then((photos) => {
+      if (photos.length > 0) {
+        this.logoutAlert('Unuploaded files detected, these files will not be uploaded by clicking the "Logout" button.');
+      } else {
+        retrieveOcrTextFile().then((files) => {
+          if (files.length > 0) {
+            this.logoutAlert('Unuploaded files detected, these files will not be uploaded by clicking the "Logout" button.');
+          } else {
+            this.logoutAlert('Are you sure to logout?');
+          }
+        });
+      }
+    });
+  };
+
+  logoutAlert = (message) => {
+    Alert.alert('Logout', message, [
       { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
       {
-        text: 'Confirm',
+        text: 'Logout',
         onPress: () => {
-          const { setAuthenticateResult } = this.props;
+          const {
+            setAuthenticateResult, setDestinationLibrary, setPaths, setParentDir, setLibraries,
+          } = this.props;
           setAuthenticateResult(null);
+          setDestinationLibrary(null);
+          setPaths([]);
+          setParentDir(null);
+          setLibraries([]);
+          storePhotos([]);
+          storeOcrTextFile([]);
+          storeCurrentState('none');
           this.props.navigation.dispatch(NavigationActions.reset({
             index: 0,
             actions: [
@@ -395,14 +424,14 @@ class CameraScreen extends React.Component {
         },
       },
     ]);
-  };
+  }
 
   destination = () => {
     const { paths, destinationLibrary } = this.props;
     if (paths && paths.length) {
       return paths[paths.length - 1].name;
     }
-    return destinationLibrary.name;
+    return destinationLibrary ? destinationLibrary.name : null;
   };
 
   isShowWarning = () => {
@@ -483,6 +512,7 @@ class CameraScreen extends React.Component {
       permissionDialogTitle="Permission to use camera"
       permissionDialogMessage="We need your permission to use your camera phone"
       onTextRecognized={this.state.ocrEnable}
+      // onTextRecognized={this.onTxtRecognized}
     >
       <TouchableOpacity
         style={{
@@ -536,6 +566,23 @@ class CameraScreen extends React.Component {
   );
 
   render() {
+    if (this.props.uploadError !== '') {
+      Alert.alert('Upload not successful', "Couldn't find selected folder, please choose another one", [
+        {
+          text: 'change',
+          onPress: () => {
+            this.props.clearUploadError();
+            this.props.navigation.dispatch(NavigationActions.reset({
+              index: 0,
+              actions: [
+                NavigationActions.navigate({
+                  routeName: 'Library',
+                }),
+              ],
+            }));
+          },
+        }]);
+    }
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar translucent barStyle="light-content" />
@@ -562,9 +609,9 @@ class CameraScreen extends React.Component {
             uri={this.state.lastPhotoUri}
           />
         }
-        {this.isShowWarning() &&
+        {/* {this.isShowWarning() &&
           <WarningModal />
-        }
+        } */}
         {this.renderCamera()}
       </SafeAreaView>
     );
@@ -578,11 +625,17 @@ CameraScreen.propTypes = {
   syncUploadProgress: PropTypes.func.isRequired,
   uploadFile: PropTypes.func.isRequired,
   setAuthenticateResult: PropTypes.func.isRequired,
+  setDestinationLibrary: PropTypes.func.isRequired,
+  setLibraries: PropTypes.func.isRequired,
+  setPaths: PropTypes.func.isRequired,
+  setParentDir: PropTypes.func.isRequired,
   netOption: PropTypes.string.isRequired,
   navigation: PropTypes.object.isRequired,
   destinationLibrary: PropTypes.object,
   nav: PropTypes.object.isRequired,
   setOcrTextOnPause: PropTypes.func.isRequired,
+  uploadError: PropTypes.string.isRequired,
+  clearUploadError: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -592,6 +645,7 @@ const mapStateToProps = state => ({
   paths: state.library.paths,
   netOption: state.upload.netOption,
   ocrTextOnPause: state.upload.ocrTextOnPause,
+  uploadError: state.upload.error,
   nav: state.nav,
 });
 
@@ -602,9 +656,13 @@ const mapDispatchToProps = dispatch => ({
   fetchLibraries: () => dispatch(LibraryActions.fetchLibraries()),
   setDestinationLibrary: destinationLibrary =>
     dispatch(LibraryActions.setDestinationLibrary(destinationLibrary)),
+  setLibraries: libraries => dispatch(LibraryActions.setLibraries(libraries)),
+  setPaths: paths => dispatch(LibraryActions.setPaths(paths)),
+  setParentDir: parentDir => dispatch(LibraryActions.setParentDir(parentDir)),
   setAuthenticateResult: result => dispatch(AccountsActions.setAuthenticateResult(result)),
   setNetOption: netOption => dispatch(UploadActions.setNetOption(netOption)),
   setOcrTextOnPause: ocrTextOnPause => dispatch(UploadActions.setOcrTextOnPause(ocrTextOnPause)),
+  clearUploadError: () => dispatch(UploadActions.uploadError('')),
 });
 
 export default connect(

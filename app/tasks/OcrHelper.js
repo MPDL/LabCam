@@ -34,8 +34,8 @@ const recognize = imgOriginalPath =>
       console.log('OCR Error: ', err);
     });
 
-export const createFile = (text) => {
-  const path = `${RNFS.DocumentDirectoryPath}/test.md`;
+export const createFile = (text, mdFileName) => {
+  const path = `${RNFS.DocumentDirectoryPath}/${mdFileName}`;
   return RNFS.writeFile(path, text, 'utf8')
     .then((success) => {
       console.log(`FILE WRITTEN: ${path}`);

@@ -10,11 +10,11 @@ import com.reactlibrary.RNLabCamLibraryPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.rnfs.RNFSPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
-import org.reactnative.camera.RNCameraPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import org.reactnative.camera.RNCameraPackage;
 
 import java.util.Arrays;
 import java.util.List;

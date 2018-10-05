@@ -11,6 +11,7 @@ import { SmallText } from '../../common/CamText';
 import CamColors from '../../common/CamColors';
 import CamFonts from '../../common/CamFonts';
 import { hasCellular } from '../../tasks/OcrHelper';
+import { isIphoneX } from '../iphoneXHelper';
 
 class KeeperOptionModal extends React.Component {
   constructor(props) {
@@ -57,8 +58,13 @@ class KeeperOptionModal extends React.Component {
       });
     }
 
+    const rootStyle = Platform.OS === 'android'
+    ? styles.root
+    : isIphoneX() ? [styles.root, {marginTop: 80}]
+      : [styles.root, {marginTop: 60}];
+
     return (
-      <SafeAreaView style={styles.root}>
+      <SafeAreaView style={rootStyle}>
         <Triangle
           width={20}
           height={12}
@@ -91,7 +97,7 @@ class KeeperOptionModal extends React.Component {
 }
 
 KeeperOptionModal.propTypes = {
-  destination: PropTypes.string.isRequired,
+  destination: PropTypes.string,
   onSelectLibrary: PropTypes.func.isRequired,
   logout: PropTypes.func.isRequired,
   setNetOption: PropTypes.func.isRequired,
@@ -101,13 +107,13 @@ KeeperOptionModal.propTypes = {
 const styles = StyleSheet.create({
   root: {
     position: 'absolute',
+    marginTop: 40 + StatusBar.currentHeight,
     marginHorizontal: 20,
     width: '100%',
     alignSelf: 'center',
     zIndex: 99,
   },
   triangle: {
-    marginTop: Platform.OS === 'android' ? 40 + StatusBar.currentHeight : 40,
     marginHorizontal: 20,
   },
   container: {

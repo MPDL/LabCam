@@ -46,7 +46,6 @@ export function* fetchDirectoriesSaga(action) {
 
   const { library, paths } = action;
   const path = paths ? paths.map(p => `${p.name}/`).reduce((prev, cur) => prev + cur, '/') : '';
-
   try {
     const directories = yield call(
       getDirectories,
@@ -74,8 +73,15 @@ export function* fetchDirectoriesSaga(action) {
       yield put(LibraryActions.setDestinationLibrary(mutableLibrary));
       yield put(LibraryActions.setLibraries(mutableLibraries));
     }
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    if (error) {
+      console.log(error);
+      if (error.message === '404') {
+        const newPaths = Immutable.asMutable(paths);
+        newPaths.pop();
+        yield put(LibraryActions.selectDirectories(newPaths));
+      }
+    }
   }
 }
 
@@ -136,10 +142,17 @@ function compareLibs(cache, libraries) {
   if (cacheCount === 0 && librariesCount === 0) return true;
 
   let count = 0;
-  const cacheIdArray = Immutable.asMutable(cache).map(cacheLib => cacheLib.id);
+  let cachedMap = [];
+  const mutableCache = Immutable.asMutable(cache);
+  for (let i = 0; i < mutableCache.length; i += 1) {
+    cachedMap.push([mutableCache[i].id, mutableCache[i].name]);
+  }
+
   for (let i = 0; i < libraries.length; i += 1) {
-    if (cacheIdArray.includes(libraries[i].id)) {
-      count += 1;
+    for (let j = 0; j < cachedMap.length; j += 1) {
+      if (cachedMap[j][0] === libraries[i].id && cachedMap[j][1] === libraries[i].name) {
+        count += 1;
+      }
     }
   }
   return cacheCount === count;

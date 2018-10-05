@@ -1,6 +1,8 @@
 import { call, select, put } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
+import { NavigationActions } from 'react-navigation';
+import RNFS from 'react-native-fs';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import UploadActions from '../redux/UploadRedux';
 import {
@@ -8,6 +10,7 @@ import {
   storePhotos,
   retrieveOcrTextFile,
   storeOcrTextFile,
+  retrieveCurrentState,
 } from '../storage/DbHelper';
 import { getDirectories } from '../api/LibraryApi';
 import { showNotification } from '../tasks/OcrHelper';
@@ -52,8 +55,20 @@ function* uploadPhoto(authenticateResult, link, photo, parentDir) {
         showNotification();
       }
     }
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
+    if (err.message && err.message.includes("Parent dir doesn't exist")) {
+      yield put(UploadActions.uploadError('not exist'));
+      // Alert.alert('Upload not successful', "Couldn't find selected folder, please choose another one", [
+      //   {
+      //     text: 'change',
+      //     onPress: () => {
+      //       put(NavigationActions.navigate({
+      //         routeName: 'Library',
+      //       }));
+      //     },
+      //   }]);
+    }
   }
 }
 
@@ -73,6 +88,16 @@ function* uploadOcrTextFile(authenticateResult, link, ocrTextFile, parentDir) {
       const ocrTextFileList = yield retrieveOcrTextFile();
       yield storeOcrTextFile(ocrTextFileList.filter(e => e.contentUri !== ocrTextFile.contentUri));
       console.log(`${ocrTextFileList.length} mdFiles left`);
+      // create a path you want to delete
+      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/${ocrTextFile.fileName}`)
+        .then(() => {
+          console.log('FILE DELETED');
+        })
+        // `unlink` will throw an error, if the item to unlink does not exist
+        .catch((err) => {
+          console.log(err.message);
+        });
+
       if (Platform.OS === 'android') {
         showNotification();
       }
@@ -88,6 +113,9 @@ export function* batchUpload(action) {
   const { destinationLibrary, parentDir } = yield select(state => state.library);
 
   yield call(delay, 10000);
+  const currentState = yield retrieveCurrentState();
+  console.log(`currentState:${currentState}`);
+  if (currentState === 'background') return;
   try {
     const files = yield call(
       getDirectories,

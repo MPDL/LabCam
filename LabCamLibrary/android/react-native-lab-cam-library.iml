@@ -46,6 +46,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/generated/source/apt/test/debug" isTestSource="true" generated="true" />
       <excludeFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/annotations" />
       <excludeFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/attr" />
+      <excludeFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/bundles" />
       <excludeFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/../../node_modules/react-native-lab-cam-library/android/build/intermediates/classes" />

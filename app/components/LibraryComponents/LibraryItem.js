@@ -19,8 +19,8 @@ export default class LibraryItem extends Component {
       item, onLibPress, onDirPress, currentPaths, libId,
     } = this.props;
     const itemName = item
-      ? item.name.length > 20
-        ? `${item.name.substring(0, 18)}..`
+      ? item.name.length > 25
+        ? `${item.name.substring(0, 23)}..`
         : item.name
       : '';
     const repoInlineView = (

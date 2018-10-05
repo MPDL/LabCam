@@ -2,12 +2,32 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, ScrollView, Text, TouchableOpacity, StatusBar, Dimensions, Platform, StyleSheet } from 'react-native';
+import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, StatusBar, Dimensions, Platform, StyleSheet } from 'react-native';
 import CamColors from '../../common/CamColors';
 import UploadActions from '../../redux/UploadRedux';
 import { isIphoneX } from '../iphoneXHelper';
 
 class OcrModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLandscape: false,
+    };
+  }
+ 
+  onLayout = (e) => {
+    const { width, height } = Dimensions.get('window');
+    if (width > height) {
+      this.setState({
+        isLandscape: true,
+      });
+    } else {
+      this.setState({
+        isLandscape: false,
+      });
+    }
+  };
+
   render() {
     const {
       ocrScanText, isScanning, ocrTextOnPause, toggleScan,
@@ -16,14 +36,16 @@ class OcrModal extends React.Component {
 
     const ocrLayerStyle = Platform.OS === 'android'
       ? styles.ocrLayer
-      : isIphoneX() ? styles.ocrLayerIosX : styles.ocrLayerIos;
+      : isIphoneX() ? this.state.isLandscape 
+        ? [styles.ocrLayerIosX, {height: Dimensions.get('window').height - 166}] : [styles.ocrLayerIosX, {height: Dimensions.get('window').height - 186}]
+        : styles.ocrLayerIos;
 
     const scanSwitchStyle = !isScanning
       ? styles.scanSwitch
       : [styles.scanSwitch, { backgroundColor: CamColors.keeperRed }];
 
     return (
-      <View style={ocrLayerStyle}>
+      <SafeAreaView style={ocrLayerStyle} onLayout={this.onLayout}>
         {this.props.ocrEnable && (
           <View style={styles.ocrModal}>
             <View style={styles.ocrTopPanel}>
@@ -33,14 +55,14 @@ class OcrModal extends React.Component {
               </TouchableOpacity>
             </View>
             <Text style={styles.hintSaveText}>
-              {isScanning ? '' : 'OCR Text will be upload with next Photo'}
+              {isScanning ? '' : 'OCR Text will be uploaded with next Photo'}
             </Text>
             <ScrollView style={styles.ocrScrollView}>
               <Text textAlign="center">{ocrResult}</Text>
             </ScrollView>
           </View>
         )}
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -96,7 +118,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 100,
-    height: Dimensions.get('window').height - 186,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',

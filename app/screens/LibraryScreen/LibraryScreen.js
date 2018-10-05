@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, SafeAreaView, FlatList, TouchableOpacity, StatusBar, NetInfo } from 'react-native';
+import { View, SafeAreaView, FlatList, TouchableOpacity, StatusBar, NetInfo, Platform } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import Immutable from 'seamless-immutable';
 import LibraryActions from '../../redux/LibraryRedux';
@@ -24,7 +24,9 @@ class LibraryScreen extends Component {
 
   componentDidMount() {
     this._s0 = this.props.navigation.addListener('willFocus', this._onWF);
-    requestReadPermission();
+    if (Platform.OS === 'android') {
+      requestReadPermission();
+    }
   }
 
   componentWillUnmount() {
@@ -32,7 +34,7 @@ class LibraryScreen extends Component {
   }
 
   _onWF = (a) => {
-    const { destinationLibrary, paths, fetchLibraries } = this.props;
+    const { destinationLibrary, paths, fetchLibraries, fetchDirectories } = this.props;
     this.setState({
       cachedPaths: paths,
       cachedLibrary: destinationLibrary,
@@ -40,6 +42,7 @@ class LibraryScreen extends Component {
     NetInfo.getConnectionInfo().then((connectionInfo) => {
       if (connectionInfo.type !== 'none') {
         fetchLibraries();
+        fetchDirectories(destinationLibrary, paths);
       }
     });
   };
@@ -240,6 +243,7 @@ LibraryScreen.propTypes = {
   setParentDir: PropTypes.func.isRequired,
   fetchLibraries: PropTypes.func.isRequired,
   fetchDirectories: PropTypes.func.isRequired,
+  recursiveFetchDirectories: PropTypes.func.isRequired,
   setPaths: PropTypes.func.isRequired,
   selectDirectories: PropTypes.func.isRequired,
   nav: PropTypes.object.isRequired,
@@ -260,6 +264,7 @@ const mapDispatchToProps = dispatch => ({
   setParentDir: parentDir => dispatch(LibraryActions.setParentDir(parentDir)),
   fetchLibraries: () => dispatch(LibraryActions.fetchLibraries()),
   fetchDirectories: (library, path) => dispatch(LibraryActions.fetchDirectories(library, path)),
+  recursiveFetchDirectories: (library, path) => dispatch(LibraryActions.recursiveFetchDirectories(library, path)),
   setPaths: paths => dispatch(LibraryActions.setPaths(paths)),
   selectDirectories: path => dispatch(LibraryActions.selectDirectories(path)),
 });
