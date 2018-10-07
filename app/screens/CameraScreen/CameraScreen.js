@@ -29,6 +29,8 @@ import {
   retrieveOcrTextFile,
   storeOcrTextFile,
   storeCurrentState,
+  retrieveUploadError,
+  storeUploadError,
 } from '../../storage/DbHelper';
 import { startService, stopService, createFile, hasFlash } from '../../tasks/OcrHelper';
 import CamColors from '../../common/CamColors';
@@ -166,6 +168,12 @@ class CameraScreen extends React.Component {
       storeCurrentState('active');
       if (Platform.OS === 'android') {
         stopService();
+        retrieveUploadError().then((uploadError) => {
+          if (uploadError !== '') {
+            this.showFolderNotExistAlert();
+            storeUploadError('');
+          }
+        });
       } else if (Platform.OS === 'ios') {
         this.props.syncUploadProgress(); // ios background db write bug
       }
@@ -565,9 +573,9 @@ class CameraScreen extends React.Component {
     </RNCamera>
   );
 
-  render() {
-    if (this.props.uploadError !== '') {
-      Alert.alert('Upload not successful', "Couldn't find selected folder, please choose another one", [
+  showFolderNotExistAlert = () => {
+    Alert.alert(
+      'Upload not successful', "Couldn't find selected folder, please choose another one", [
         {
           text: 'change',
           onPress: () => {
@@ -581,7 +589,14 @@ class CameraScreen extends React.Component {
               ],
             }));
           },
-        }]);
+        }],
+      { cancelable: false },
+    );
+  }
+
+  render() {
+    if (this.props.uploadError !== '') {
+      this.showFolderNotExistAlert();
     }
     return (
       <SafeAreaView style={styles.container}>

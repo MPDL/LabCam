@@ -1,7 +1,6 @@
 import { call, select, put } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
-import { Platform, Alert } from 'react-native';
-import { NavigationActions } from 'react-navigation';
+import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import UploadActions from '../redux/UploadRedux';
@@ -59,15 +58,6 @@ function* uploadPhoto(authenticateResult, link, photo, parentDir) {
     console.log(err);
     if (err.message && err.message.includes("Parent dir doesn't exist")) {
       yield put(UploadActions.uploadError('not exist'));
-      // Alert.alert('Upload not successful', "Couldn't find selected folder, please choose another one", [
-      //   {
-      //     text: 'change',
-      //     onPress: () => {
-      //       put(NavigationActions.navigate({
-      //         routeName: 'Library',
-      //       }));
-      //     },
-      //   }]);
     }
   }
 }
@@ -129,15 +119,22 @@ export function* batchUpload(action) {
     const waitingPhotoList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
     storePhotos(waitingPhotoList);
     for (let i = 0; i < waitingPhotoList.length; i += 1) {
-      yield put(UploadActions.uploadFile(waitingPhotoList[i]));
-      yield call(delay, 1500);
+      const { error } = yield select(state => state.upload);
+      console.log(`error:${error}`);
+      if (error === '') {
+        yield put(UploadActions.uploadFile(waitingPhotoList[i]));
+        yield call(delay, 1500);
+      } else break;
     }
 
     const mdFiles = yield retrieveOcrTextFile();
     const waitingTextFileList = mdFiles.filter(element => !files.map(file => file.name).includes(element.fileName));
     storeOcrTextFile(waitingTextFileList);
     for (let i = 0; i < waitingTextFileList.length; i += 1) {
-      yield put(UploadActions.uploadFile(waitingTextFileList[i]));
+      const { error } = yield select(state => state.upload);
+      if (error === '') {
+        yield put(UploadActions.uploadFile(waitingTextFileList[i]));
+      } else break;
     }
   } catch (e) {
     console.log(e);

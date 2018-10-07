@@ -94,3 +94,23 @@ export const storeCurrentState = async (currentState) => {
     console.log(error);
   }
 };
+
+export const retrieveUploadError = async () => {
+  let uploadError = '';
+  try {
+    uploadError = await AsyncStorage.getItem('uploadError');
+    return uploadError;
+  } catch (error) {
+    console.log(error);
+    return uploadError;
+  }
+};
+
+export const storeUploadError = async (uploadError) => {
+  try {
+    await AsyncStorage.setItem('uploadError', uploadError);
+  } catch (error) {
+    // Error saving data
+    console.log(error);
+  }
+};
