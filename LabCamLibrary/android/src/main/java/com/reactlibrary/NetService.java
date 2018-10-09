@@ -66,8 +66,12 @@ public class NetService extends JobService {
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         Log.e("NetService", "NetService onStartJob");
-        preProcess();
-        getUploadLink();
+
+        String uploadError = getUploadError();
+        if (uploadError == null || uploadError.equalsIgnoreCase("")){
+            preProcess();
+            getUploadLink();
+        }
         return false;
     }
 
@@ -136,10 +140,22 @@ public class NetService extends JobService {
                             uploadTextFiles();
                         }
                     }
-                    showNotification();
+                    showNotification("File Uploaded");
                 } else {
                     int statusCode = response.code();
                     Log.e("dataItem", statusCode+ " - failed");
+                    Log.e("dataItem", response.message());
+                    String errStr = "";
+                    try {
+                        errStr = (response.errorBody()).string();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (errStr.contains("Parent dir doesn't exist")) {
+                        showNotification("Selected folder " + parentDir + " not exist");
+                        write("uploadError", "not exist");
+                        Log.e("read", query("uploadError"));
+                    }
                 }
             }
 
@@ -235,6 +251,12 @@ public class NetService extends JobService {
         return "";
     }
 
+    public String getUploadError() {
+        String uploadStr = "";
+        uploadStr = query("uploadError");
+        Log.e("uploadStr", uploadStr+"?");
+        return uploadStr;
+    }
 
     public List<DataItem> retrieveItems(String key) {
         String itemsStr = query(key);
@@ -282,11 +304,11 @@ public class NetService extends JobService {
         });
     }
 
-    public void showNotification() {
+    public void showNotification(String message) {
         mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.app_images_icon_app);
         mBuilder.setContentTitle("LabCam")
-                .setContentText("File Uploaded")
+                .setContentText(message)
                 .setAutoCancel(false);
 
         NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);

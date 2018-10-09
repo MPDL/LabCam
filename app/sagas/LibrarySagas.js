@@ -40,6 +40,64 @@ export function* fetchLibrariesSaga() {
   }
 }
 
+export function* fetchDirectory(server, authenticateResult, library, paths) {
+  const path = paths ? paths.map(p => `${p.name}/`).reduce((prev, cur) => prev + cur, '/') : '';
+  try {
+    const directories = yield call(
+      getDirectories,
+      server,
+      authenticateResult,
+      library.id,
+      path,
+      'd',
+    );
+    if (directories) {
+      console.log(directories);
+      return directories;
+    } return null;
+  } catch (error) {
+    if (error) {
+      console.log(error);
+      if (error.message === '404') {
+        const newPaths = Immutable.asMutable(paths);
+        newPaths.pop();
+        yield put(LibraryActions.selectDirectories(newPaths));
+      }
+    } return null;
+  }
+}
+
+export function* recursiveFetchDirectoriesSaga(action) {
+  const { server, authenticateResult } = yield select(state => state.accounts);
+  const { libraries } = yield select(state => state.library);
+
+  const { library, paths } = action;
+  if (!paths) return;
+  const mutablePaths = Immutable.asMutable(paths);
+  if (!libraries) return;
+  let mutableLibraries = Immutable.asMutable(libraries, { deep: true });
+  if (!library) return;
+  const mutableLibrary = Immutable.asMutable(library, { deep: true });
+  for (let i = 0; i < mutablePaths.length + 1; i += 1) {
+    const currentPaths = mutablePaths.slice(0, i);
+    const directories = yield call(fetchDirectory, server, authenticateResult, library, currentPaths);
+    if (directories) {
+      if (mutableLibrary.subDir) {
+        const updatedLibrary = updateLibrary(directories, mutableLibrary, currentPaths);
+        if (updateLibrary !== false) {
+          mutableLibraries = updateLibraries(libraries, updatedLibrary);
+        }
+      } else {
+        const updatedLibrary = initLibrarySubDir(directories, mutableLibrary);
+        console.log(library);
+        mutableLibraries = updateLibraries(libraries, updatedLibrary);
+      }
+    }
+  }
+  yield put(LibraryActions.setDestinationLibrary(mutableLibrary));
+  yield put(LibraryActions.setLibraries(mutableLibraries));
+}
+
 export function* fetchDirectoriesSaga(action) {
   const { server, authenticateResult } = yield select(state => state.accounts);
   const { libraries } = yield select(state => state.library);
@@ -121,19 +179,19 @@ function updateLibrary(directories, library, paths) {
     lodashPaths.push(paths[i].name);
     lodashPaths.push('subDir');
   }
-  const cache = Object.values(_.get(library, lodashPaths, []));
-  const needUpdate = !compareDirs(cache, directories);
-  if (needUpdate) {
-    const mutableLibrary = Object.assign(library);
-    _.set(mutableLibrary, lodashPaths, arrayToObj(directories, paths));
-    return mutableLibrary;
-  }
-  return false;
+  // const cache = Object.values(_.get(library, lodashPaths, []));
+  // const needUpdate = !compareDirs(cache, directories);
+  // if (needUpdate) {
+  const mutableLibrary = Object.assign(library);
+  _.set(mutableLibrary, lodashPaths, arrayToObj(directories, paths));
+  return mutableLibrary;
+  // }
+  // return false;
 }
 
-function compareDirs(cache, directories) {
-  return JSON.stringify(cache) === JSON.stringify(directories);
-}
+// function compareDirs(cache, directories) {
+//   return JSON.stringify(cache) === JSON.stringify(directories);
+// }
 
 function compareLibs(cache, libraries) {
   const cacheCount = cache ? cache.length : 0;
@@ -142,7 +200,7 @@ function compareLibs(cache, libraries) {
   if (cacheCount === 0 && librariesCount === 0) return true;
 
   let count = 0;
-  let cachedMap = [];
+  const cachedMap = [];
   const mutableCache = Immutable.asMutable(cache);
   for (let i = 0; i < mutableCache.length; i += 1) {
     cachedMap.push([mutableCache[i].id, mutableCache[i].name]);

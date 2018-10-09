@@ -12,7 +12,7 @@ import { LibraryTypes } from '../redux/LibraryRedux';
 import { startup } from './StartupSagas';
 import { authenticateAccount } from './AccountsSagas';
 import { uploadFile, batchUpload, syncUploadProgress } from './UploadSagas';
-import { fetchLibrariesSaga, fetchDirectoriesSaga, selectDirectoriesSaga } from './LibrarySagas';
+import { fetchLibrariesSaga, fetchDirectoriesSaga, selectDirectoriesSaga, recursiveFetchDirectoriesSaga } from './LibrarySagas';
 
 /* ------------- Connect Types To Sagas ------------- */
 
@@ -25,6 +25,7 @@ export default function* rootSaga() {
     takeLatest(UploadTypes.SYNC_UPLOAD_PROGRESS, syncUploadProgress),
     takeEvery(LibraryTypes.FETCH_LIBRARIES, fetchLibrariesSaga),
     takeLatest(LibraryTypes.FETCH_DIRECTORIES, fetchDirectoriesSaga),
+    takeLatest(LibraryTypes.RECURSIVE_FETCH_DIRECTORIES, recursiveFetchDirectoriesSaga),
     takeLatest(LibraryTypes.SELECT_DIRECTORIES, selectDirectoriesSaga),
   ]);
 }

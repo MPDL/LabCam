@@ -7,6 +7,7 @@ const { Types, Creators } = createActions({
   fetchLibraries: null,
   setLibraries: ['libraries'],
   fetchDirectories: ['library', 'paths'],
+  recursiveFetchDirectories: ['library', 'paths'],
   setParentDir: ['parentDir'],
   setPaths: ['paths'],
   selectDirectories: ['paths'],

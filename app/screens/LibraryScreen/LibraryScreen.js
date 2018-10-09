@@ -34,7 +34,7 @@ class LibraryScreen extends Component {
   }
 
   _onWF = (a) => {
-    const { destinationLibrary, paths, fetchLibraries, fetchDirectories } = this.props;
+    const { destinationLibrary, paths, fetchLibraries, recursiveFetchDirectories } = this.props;
     this.setState({
       cachedPaths: paths,
       cachedLibrary: destinationLibrary,
@@ -42,7 +42,7 @@ class LibraryScreen extends Component {
     NetInfo.getConnectionInfo().then((connectionInfo) => {
       if (connectionInfo.type !== 'none') {
         fetchLibraries();
-        fetchDirectories(destinationLibrary, paths);
+        recursiveFetchDirectories(destinationLibrary, paths);
       }
     });
   };

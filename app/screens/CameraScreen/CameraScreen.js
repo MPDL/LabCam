@@ -169,7 +169,7 @@ class CameraScreen extends React.Component {
       if (Platform.OS === 'android') {
         stopService();
         retrieveUploadError().then((uploadError) => {
-          if (uploadError !== '') {
+          if (uploadError && uploadError.length > 0) {
             this.showFolderNotExistAlert();
             storeUploadError('');
           }
@@ -595,7 +595,7 @@ class CameraScreen extends React.Component {
   }
 
   render() {
-    if (this.props.uploadError !== '') {
+    if (this.props.uploadError && this.props.uploadError.length > 0) {
       this.showFolderNotExistAlert();
     }
     return (
