@@ -15,19 +15,19 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleVersion</key>
-	<string>10</string>
+	<string>11</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>LabCam requires to access your photo library to for image upload</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.1.1</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>LabCam requires to access your Microphone for videos recording</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.1.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>

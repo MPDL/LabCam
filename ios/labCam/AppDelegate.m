@@ -25,6 +25,7 @@
 @property (strong, atomic) NSMutableString *parentDir;
 @property (strong, atomic) NSMutableString *uploadLink;
 @property (strong, atomic) NSMutableString *netOption;
+@property (strong, atomic) NSMutableString *uploadError;
 @end
 
 @implementation AppDelegate
@@ -33,15 +34,14 @@
 {
   NSURL *jsCodeLocation;
 
-//  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+//  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"LabCam"
                                                initialProperties:nil
                                                    launchOptions:launchOptions];
   rootView.backgroundColor = [[UIColor alloc] initWithRed:111.0f green:123.0f blue:1.0f alpha:1];
-  
   [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
   
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -49,6 +49,9 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+    [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil]];
+  }
   return YES;
 }
 
@@ -64,7 +67,7 @@
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
-    [self getNetOpt:storage];
+    [self getUploadError:storage];
   });
 }
 
@@ -72,7 +75,7 @@
    NSLog(@"performFetchWithCompletionHandler");
 
   RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
-  [self getNetOpt:storage];
+  [self getUploadError:storage];
 
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_SEC),
                  dispatch_get_main_queue(), ^{
@@ -107,6 +110,40 @@
       NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
     }
   }];
+}
+
+- (void)getUploadError: (RCTAsyncLocalStorage *)storage
+{
+  NSLog(@"getUploadError");
+  [self jsonFromLocalRNStrogeForKey: @"uploadError" completion:^(NSDictionary* data,NSError* error){
+    if(data){
+      NSLog(@"getUploadError : %@", data);
+        _uploadError = data;
+        if ([_uploadError length] == 0) {
+          [self getNetOpt:storage];
+        }
+    }else{
+      //handle error
+      NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
+    }
+  }];
+}
+
+-(void) setUploadError: (RCTAsyncLocalStorage *)storage :(NSString *) errorStr
+{
+  dispatch_async(storage.methodQueue, ^{
+    @try {
+      NSMutableArray<NSMutableArray<NSMutableArray *> *> * kvPairs = [[NSMutableArray alloc] init];
+      NSMutableArray * innerArr = [[NSMutableArray alloc] init];
+      [innerArr addObject:@"uploadError"];
+      [innerArr addObject: errorStr];
+      [kvPairs addObject:innerArr];
+      [storage performSelector:@selector(multiSet:callback:) withObject:kvPairs withObject:  ^(NSArray *response) {}];
+    }
+    @catch (NSException *exception) {
+      NSLog(@"Caught an exception");
+    }
+  });
 }
 
 - (NSString *)getNetworkType
@@ -241,11 +278,21 @@
                     progress: nil
                     completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
                       NSLog(@"response: %@", response);
-                      NSLog(@"error: %@", error);
+                      
+                      // dir not exist
+                      NSString *responseDes = [response description];
+                      NSString *word1 = @"Content-Length";
+                      NSString *word2 = @"39";
+                      if ([responseDes rangeOfString:word2].location - [responseDes rangeOfString:word1].location == 32) {
+                        [self showNotifcation :[NSString stringWithFormat:@"%@/%@/%@",  @"Selected folder", _parentDir, @" is not exist"]];
+                        RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
+                        [self setUploadError: storage :@"not exist"];
+                      }
+
                       NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
                       NSLog(@"response status code: %ld", (long)[httpResponse statusCode]);
                       if ((long)[httpResponse statusCode] == 200) {
-                        [self showNotifcation];
+                        [self showNotifcation :@"File Uploaded"];
                         NSLog(@"photo uploaded");
                         
                         RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
@@ -361,11 +408,19 @@
                 progress: nil
                 completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
                   NSLog(@"response: %@", response);
-                  NSLog(@"error: %@", error);
+                  
+                  // dir not exist
+                  NSString *responseDes = [response description];
+                  NSString *word1 = @"Content-Length";
+                  NSString *word2 = @"39";
+                  if ([responseDes rangeOfString:word2].location - [responseDes rangeOfString:word1].location == 32) {
+                    [self showNotifcation :[NSString stringWithFormat:@"%@/%@/%@",  @"Selected folder", _parentDir, @" is not exist"]];
+                  }
+                  
                   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
                   NSLog(@"response status code: %ld", (long)[httpResponse statusCode]);
                   if ((long)[httpResponse statusCode] == 200) {
-                    [self showNotifcation];
+                    [self showNotifcation :@"File Uploaded"];
                     
                     RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
                     [self getMdFiles: storage :^(NSDictionary* data,NSError* error){
@@ -475,12 +530,17 @@
       [storage performSelector:@selector(multiGet:callback:) withObject:@[key] withObject:rnCompletion];
     }
     @catch (NSException *exception) {
-      NSLog(@"Caught an exception %@", key);
+      // if uploadError is not init
+      if ([key isEqualToString:@"uploadError"]) {
+        [self getNetOpt:storage];
+      }else {
+        NSLog(@"Caught an exception %@", key);
+      }
     }
   });
 }
 
-- (void) showNotifcation
+- (void) showNotifcation :(NSString *)message
 {
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   UNAuthorizationOptions options = UNAuthorizationOptionAlert + UNAuthorizationOptionSound;
@@ -500,7 +560,7 @@
   
   UNMutableNotificationContent *content = [UNMutableNotificationContent new];
   content.title = @"LabCam";
-  content.body = @"File Uploaded";
+  content.body = message;
   content.sound = [UNNotificationSound defaultSound];
   
   UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1

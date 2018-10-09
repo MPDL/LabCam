@@ -31,6 +31,7 @@ import {
   storeCurrentState,
   retrieveUploadError,
   storeUploadError,
+  removeItemValue,
 } from '../../storage/DbHelper';
 import { startService, stopService, createFile, hasFlash } from '../../tasks/OcrHelper';
 import CamColors from '../../common/CamColors';
@@ -91,6 +92,7 @@ class CameraScreen extends React.Component {
   };
 
   componentWillMount() {
+    // removeItemValue('uploadError');
     if (Platform.OS === 'android') {
       hasFlash().then(flash =>
         this.setState({
@@ -166,14 +168,17 @@ class CameraScreen extends React.Component {
     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       console.log('App has come to the foreground!');
       storeCurrentState('active');
+
+      retrieveUploadError().then((uploadError) => {
+        if (uploadError && uploadError.length > 0) {
+          this.showFolderNotExistAlert();
+          // storeUploadError('');
+          removeItemValue('uploadError');
+        }
+      });
+
       if (Platform.OS === 'android') {
         stopService();
-        retrieveUploadError().then((uploadError) => {
-          if (uploadError && uploadError.length > 0) {
-            this.showFolderNotExistAlert();
-            storeUploadError('');
-          }
-        });
       } else if (Platform.OS === 'ios') {
         this.props.syncUploadProgress(); // ios background db write bug
       }
