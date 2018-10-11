@@ -2,9 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, StatusBar, Dimensions, Platform, StyleSheet } from 'react-native';
+import { SafeAreaView, View, ScrollView, Text, StatusBar, Dimensions, Platform, StyleSheet } from 'react-native';
 import CamColors from '../../common/CamColors';
-import UploadActions from '../../redux/UploadRedux';
 import { isIphoneX } from '../iphoneXHelper';
 
 class OcrModal extends React.Component {
@@ -14,7 +13,7 @@ class OcrModal extends React.Component {
       isLandscape: false,
     };
   }
- 
+
   onLayout = (e) => {
     const { width, height } = Dimensions.get('window');
     if (width > height) {
@@ -30,33 +29,23 @@ class OcrModal extends React.Component {
 
   render() {
     const {
-      ocrScanText, isScanning, ocrTextOnPause, toggleScan,
+      ocrScanText,
     } = this.props;
-    const ocrResult = ocrTextOnPause === '' ? ocrScanText : ocrTextOnPause;
+    const ocrResult = ocrScanText;
 
     const ocrLayerStyle = Platform.OS === 'android'
       ? styles.ocrLayer
-      : isIphoneX() ? this.state.isLandscape 
-        ? [styles.ocrLayerIosX, {height: Dimensions.get('window').height - 166}] : [styles.ocrLayerIosX, {height: Dimensions.get('window').height - 186}]
+      : isIphoneX() ? this.state.isLandscape
+        ? [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 166 }] : [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 186 }]
         : styles.ocrLayerIos;
-
-    const scanSwitchStyle = !isScanning
-      ? styles.scanSwitch
-      : [styles.scanSwitch, { backgroundColor: CamColors.keeperRed }];
 
     return (
       <SafeAreaView style={ocrLayerStyle} onLayout={this.onLayout}>
         {this.props.ocrEnable && (
           <View style={styles.ocrModal}>
             <View style={styles.ocrTopPanel}>
-              <Text style={styles.scanningText}>{isScanning ? 'Scanning...' : ''}</Text>
-              <TouchableOpacity style={scanSwitchStyle} onPress={toggleScan}>
-                <Text style={styles.toggleText}>{isScanning ? 'Pause' : 'Resume'}</Text>
-              </TouchableOpacity>
+              <Text style={styles.scanningText}>Scanning...</Text>
             </View>
-            <Text style={styles.hintSaveText}>
-              {isScanning ? '' : 'OCR Text will be uploaded with next Photo'}
-            </Text>
             <ScrollView style={styles.ocrScrollView}>
               <Text textAlign="center">{ocrResult}</Text>
             </ScrollView>
@@ -69,10 +58,7 @@ class OcrModal extends React.Component {
 
 OcrModal.propTypes = {
   ocrEnable: PropTypes.any.isRequired,
-  isScanning: PropTypes.bool.isRequired,
   ocrScanText: PropTypes.string.isRequired,
-  ocrTextOnPause: PropTypes.string.isRequired,
-  toggleScan: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -80,14 +66,7 @@ const mapStateToProps = state => ({
   ocrTextOnPause: state.upload.ocrTextOnPause,
 });
 
-const mapDispatchToProps = dispatch => ({
-  setOcrTextOnPause: ocrTextOnPause => dispatch(UploadActions.setOcrTextOnPause(ocrTextOnPause)),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OcrModal);
+export default connect(mapStateToProps)(OcrModal);
 
 const styles = StyleSheet.create({
   ocrLayer: {
