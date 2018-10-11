@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 const DEVICE_WIDTH =
   Dimensions.get('window').width < Dimensions.get('window').height
@@ -33,8 +34,9 @@ class SignupSection extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.text} onPress={onCreatePress}>
-          Create Account
+          {this.props.server === 'https://keeper.mpdl.mpg.de/api2/' ? 'Create Account' : ''}
         </Text>
+
         <Text style={styles.text} onPress={onForgotPress}>
           Forgot Password?
         </Text>
@@ -45,5 +47,11 @@ class SignupSection extends Component {
 SignupSection.propTypes = {
   onCreatePress: PropTypes.func.isRequired,
   onForgotPress: PropTypes.func.isRequired,
+  server: PropTypes.string.isRequired,
 };
-export default SignupSection;
+
+const mapStateToProps = state => ({
+  server: state.accounts.server,
+});
+
+export default connect(mapStateToProps)(SignupSection);

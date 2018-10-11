@@ -23,6 +23,7 @@ const NAMED_COLORS = {
   yellow: 'rgba(246, 253, 55, 1)',
   green: 'rgba(106, 246, 162, 1)',
   green2: 'rgba(0, 111, 123, 1)',
+  green3: 'rgba(90, 201, 203, 1)',
 
   turquoise: 'rgba(0, 205, 223, 1)',
   purple: 'rgba(144, 63, 199, 1)',
