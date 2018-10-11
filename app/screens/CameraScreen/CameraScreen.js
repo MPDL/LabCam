@@ -22,7 +22,7 @@ import IIcon from 'react-native-vector-icons/Ionicons';
 import AccountsActions from '../../redux/AccountsRedux';
 import UploadActions from '../../redux/UploadRedux';
 import LibraryActions from '../../redux/LibraryRedux';
-import KeeperIcon from '../../images/keeper.png';
+// import KeeperIcon from '../../images/keeper.png';
 import {
   retrievePhotos,
   storePhotos,
@@ -30,7 +30,6 @@ import {
   storeOcrTextFile,
   storeCurrentState,
   retrieveUploadError,
-  storeUploadError,
   removeItemValue,
 } from '../../storage/DbHelper';
 import { startService, stopService, createFile, hasFlash } from '../../tasks/OcrHelper';
@@ -172,7 +171,6 @@ class CameraScreen extends React.Component {
       retrieveUploadError().then((uploadError) => {
         if (uploadError && uploadError.length > 0) {
           this.showFolderNotExistAlert();
-          // storeUploadError('');
           removeItemValue('uploadError');
         }
       });
@@ -475,7 +473,7 @@ class CameraScreen extends React.Component {
       : [styles.photoHelper, { color: CamColors.green2 }];
     return (
       <View style={styles.menuBar}>
-        <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
+        {/* <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
           <Image
             style={{
             alignSelf: 'center',
@@ -485,6 +483,9 @@ class CameraScreen extends React.Component {
             resizeMode="cover"
             source={KeeperIcon}
           />
+        </TouchableOpacity> */}
+        <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
+          <MIcon name={`menu`} color="white" size={24} style={styles.topMenuIcon} />
         </TouchableOpacity>
 
 

@@ -74,14 +74,14 @@ class KeeperOptionModal extends React.Component {
         />
         <View style={styles.container}>
           <View style={styles.libraryRow}>
-            <SmallText style={styles.folderOptionText}>Upload Photos to Keeper</SmallText>
+            <SmallText style={styles.folderOptionText}>Upload photos to KEEPER</SmallText>
             <SmallText style={styles.selectedLibrary} onPress={this.props.onSelectLibrary}>
               {destinationText}
               <Icon name="arrow-drop-down" size={16} />
             </SmallText>
           </View>
           <View style={styles.networkRow}>
-            <SmallText style={styles.networkOptionText}>Upload Photos to Keeper over</SmallText>
+            <SmallText style={styles.networkOptionText}>Upload photos to KEEPER via</SmallText>
             <SmallText style={styles.networkOption} onPress={this.toggleNetwork}>
               {`${this.props.netOption} `}
               <Icon name="arrow-drop-down" size={16} />

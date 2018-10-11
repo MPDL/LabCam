@@ -20,13 +20,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 10,
+    marginLeft: 2,
+    marginRight: 10,
     height: 40,
   },
   keeperIcon: {
-    marginLeft: 10,
-    width: 24,
-    height: 24,
   },
   cameraOption: {
     flexDirection: 'row',

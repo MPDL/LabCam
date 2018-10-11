@@ -69,6 +69,7 @@ class LibraryScreen extends Component {
     setDestinationLibrary(cachedLibrary);
     setPaths(cachedPaths);
     setParentDir(parentDir);
+    this.openCam();
   };
 
   openCam = () => {
