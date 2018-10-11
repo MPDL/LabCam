@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, SafeAreaView, FlatList, TouchableOpacity, StatusBar, NetInfo, Platform } from 'react-native';
+import { View, SafeAreaView, FlatList, TouchableOpacity, StatusBar, NetInfo, Platform, BackHandler } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import Immutable from 'seamless-immutable';
 import LibraryActions from '../../redux/LibraryRedux';
@@ -27,10 +27,17 @@ class LibraryScreen extends Component {
     if (Platform.OS === 'android') {
       requestReadPermission();
     }
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
   componentWillUnmount() {
     this._s0.remove();
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+  }
+
+  handleBackPress = () => {
+    this.cancelDirectory();
+    return true;
   }
 
   _onWF = (a) => {

@@ -12,6 +12,7 @@ import {
   NetInfo,
   AppState,
   Platform,
+  BackHandler,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { connect } from 'react-redux';
@@ -22,7 +23,6 @@ import IIcon from 'react-native-vector-icons/Ionicons';
 import AccountsActions from '../../redux/AccountsRedux';
 import UploadActions from '../../redux/UploadRedux';
 import LibraryActions from '../../redux/LibraryRedux';
-// import KeeperIcon from '../../images/keeper.png';
 import {
   retrievePhotos,
   storePhotos,
@@ -112,11 +112,13 @@ class CameraScreen extends React.Component {
     });
     NetInfo.addEventListener('connectionChange', this._handleConnectionChange);
     AppState.addEventListener('change', this._handleAppStateChange);
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
   componentWillUnmount() {
     NetInfo.removeEventListener('connectionChange', this._handleConnectionChange);
     AppState.removeEventListener('change', this._handleAppStateChange);
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
   }
 
   onSelectLibrary = () => {
@@ -133,6 +135,28 @@ class CameraScreen extends React.Component {
       depth,
     });
   };
+
+  handleBackPress = () => {
+    const { keeperOptionVisible, bigPicVisible, ocrEnable } = this.state;
+    if (keeperOptionVisible) {
+      this.setState({
+        keeperOptionVisible: false,
+      });
+    }
+
+    if (bigPicVisible) {
+      this.setState({
+        bigPicVisible: false,
+      });
+    }
+
+    if (ocrEnable) {
+      this.setState({
+        ocrEnable: false,
+      });
+    }
+    return true;
+  }
 
   _handleConnectionChange = (connectionInfo) => {
     const { batchUpload, netOption } = this.props;
@@ -473,19 +497,8 @@ class CameraScreen extends React.Component {
       : [styles.photoHelper, { color: CamColors.green2 }];
     return (
       <View style={styles.menuBar}>
-        {/* <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
-          <Image
-            style={{
-            alignSelf: 'center',
-            height: 24,
-            width: 24,
-          }}
-            resizeMode="cover"
-            source={KeeperIcon}
-          />
-        </TouchableOpacity> */}
         <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
-          <MIcon name={`menu`} color="white" size={24} style={styles.topMenuIcon} />
+          <MIcon name="menu" color="white" size={24} style={styles.topMenuIcon} />
         </TouchableOpacity>
 
 
@@ -526,7 +539,6 @@ class CameraScreen extends React.Component {
       permissionDialogTitle="Permission to use camera"
       permissionDialogMessage="We need your permission to use your camera phone"
       onTextRecognized={this.state.ocrEnable}
-      // onTextRecognized={this.onTxtRecognized}
     >
       <TouchableOpacity
         style={{
