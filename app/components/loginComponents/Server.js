@@ -1,6 +1,8 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Dimensions, TouchableOpacity, Text, TextInput, View, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
+import AccountsActions from '../../redux/AccountsRedux';
 import CamColors from '../../common/CamColors';
 
 class Server extends Component {
@@ -18,6 +20,22 @@ class Server extends Component {
     this.setState({
       category,
     });
+
+    const { setServer } = this.props;
+    switch (category) {
+      case 'keeper':
+        setServer('https://keeper.mpdl.mpg.de/api2/');
+        break;
+      case 'seaCloud':
+        setServer('https://seacloud.cc/api2/');
+        break;
+      case 'Others':
+        setServer('');
+        break;
+      default:
+        setServer('https://keeper.mpdl.mpg.de/api2/');
+        break;
+    }
   }
 
   render() {
@@ -57,7 +75,7 @@ class Server extends Component {
             <Text style={this.state.category === 'Others' ? styles.categorySelectedText : styles.categoryUnselectedText}>Others</Text>
           </TouchableOpacity>
         </View>
-        <TextInput style={styles.serverText} placeholder="https://">{serverUrl}</TextInput>
+        <TextInput style={styles.serverText} placeholder="https://" onChangeText={(text) => { this.props.setServer(`${text}/api2/`); }}>{serverUrl}</TextInput>
       </View>
     );
   }
@@ -77,20 +95,18 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   categorySelected: {
-    color: 'white',
     backgroundColor: CamColors.colorWithAlpha('green3', 1),
     padding: 6,
     borderRadius: 6,
   },
   categoryUnselected: {
     padding: 6,
-    color: 'grey',
   },
   categorySelectedText: {
     color: 'white',
   },
   categoryUnselectedText: {
-    color: 'grey',
+    color: CamColors.colorWithAlpha('bianca', 1),
   },
 
   keeper: {
@@ -100,12 +116,17 @@ const styles = StyleSheet.create({
   },
 });
 
+Server.propTypes = {
+  setServer: PropTypes.func.isRequired,
+  server: PropTypes.string.isRequired,
+};
+
 const mapStateToProps = state => ({
   server: state.accounts.server,
 });
 
 const mapDispatchToProps = dispatch => ({
-  setLoginState: state => dispatch(AccountsActions.setLoginState(state)),
+  setServer: serverUrl => dispatch(AccountsActions.setServer(serverUrl)),
 });
 
 export default connect(

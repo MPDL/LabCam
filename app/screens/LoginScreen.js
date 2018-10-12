@@ -27,7 +27,6 @@ class LoginScreen extends Component {
       account: '',
       password: '',
       createUrl: 'https://keeper.mpdl.mpg.de/accounts/register/',
-      forgetUrl: 'https://keeper.mpdl.mpg.de/accounts/password/reset/',
       isLandscape: false,
       netInfo: '',
     };
@@ -116,13 +115,18 @@ class LoginScreen extends Component {
   };
 
   onForgotPress = () => {
-    Linking.canOpenURL(this.state.forgetUrl).then((supported) => {
-      if (supported) {
-        Linking.openURL(this.state.forgetUrl);
-      } else {
-        console.log(`Don't know how to open URI: ${this.state.forgetUrl}`);
-      }
-    });
+    const { server } = this.props;
+    if (server && server.length > 6) {
+      const forgetUrl = `${server.substring(0, server.length - 5)}accounts/password/reset/`;
+      console.log(forgetUrl);
+      Linking.canOpenURL(forgetUrl).then((supported) => {
+        if (supported) {
+          Linking.openURL(forgetUrl);
+        } else {
+          console.log(`Don't know how to open URI: ${forgetUrl}`);
+        }
+      });
+    }
   };
 
   render() {
@@ -167,6 +171,7 @@ LoginScreen.propTypes = {
   account: PropTypes.string.isRequired,
   setLoginState: PropTypes.func.isRequired,
   loginState: PropTypes.string.isRequired,
+  server: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({

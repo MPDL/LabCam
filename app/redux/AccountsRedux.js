@@ -7,6 +7,7 @@ const { Types, Creators } = createActions({
   setAccount: ['account'],
   logout: null,
   setLoginState: ['state'],
+  setServer: ['server'],
 });
 
 export const AccountsTypes = Types;
@@ -20,6 +21,11 @@ export const INITIAL_STATE = Immutable({
 });
 
 /* ------------- Reducers ------------- */
+
+export const setServer = (state = INITIAL_STATE, action) => 
+  state.merge({
+    server: action.server,
+  });
 
 export const setAuthenticateResult = (state = INITIAL_STATE, action) =>
   state.merge({
@@ -38,6 +44,7 @@ export const setLoginState = (state = INITIAL_STATE, action) =>
 
 /* ------------- Hookup Reducers To Types ------------- */
 export const reducer = createReducer(INITIAL_STATE, {
+  [Types.SET_SERVER]: setServer,
   [Types.SET_AUTHENTICATE_RESULT]: setAuthenticateResult,
   [Types.SET_ACCOUNT]: setAccount,
   [Types.SET_LOGIN_STATE]: setLoginState,
