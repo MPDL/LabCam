@@ -1,6 +1,6 @@
 import { call, select, put } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
-import { login } from '../api/AccountsApi';
+import { login, authPing } from '../api/AccountsApi';
 import AccountsActions from '../redux/AccountsRedux';
 import LibraryActions from '../redux/LibraryRedux';
 
@@ -23,6 +23,18 @@ export function* authenticateAccount(action) {
         console.log('Login failed, wrong username or password');
         yield put(AccountsActions.setLoginState('failed'));
       }
+    }
+  }
+}
+
+export function* pingServer(action) {
+  const { authenticateResult, server } = yield select(state => state.accounts);
+  try {
+    yield call(authPing, server, authenticateResult);
+  } catch (error) {
+    console.log(error);
+    if (error.message === '401') {
+      yield put(AccountsActions.setLoginState('auth failed'));
     }
   }
 }

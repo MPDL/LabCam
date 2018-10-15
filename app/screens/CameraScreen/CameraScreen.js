@@ -63,6 +63,8 @@ const iosOptions = {
   forceUpOrientation: true,
 };
 
+let alertPresent = false;
+
 class CameraScreen extends React.Component {
   state = {
     hasFlash: false,
@@ -193,6 +195,7 @@ class CameraScreen extends React.Component {
 
       if (Platform.OS === 'android') {
         stopService();
+        this.props.pingServer();
       } else if (Platform.OS === 'ios') {
         this.props.syncUploadProgress(); // ios background db write bug
       }
@@ -216,6 +219,7 @@ class CameraScreen extends React.Component {
       keeperOptionVisible: !this.state.keeperOptionVisible,
       ocrEnable: false,
     });
+    this.props.pingServer();
   };
 
   closeKeeperOption = () => {
@@ -406,28 +410,32 @@ class CameraScreen extends React.Component {
       {
         text: 'Logout',
         onPress: () => {
-          const {
-            setAuthenticateResult, setDestinationLibrary, setPaths, setParentDir, setLibraries,
-          } = this.props;
-          setAuthenticateResult(null);
-          setDestinationLibrary(null);
-          setPaths([]);
-          setParentDir(null);
-          setLibraries([]);
-          storePhotos([]);
-          storeOcrTextFile([]);
-          storeCurrentState('none');
-          this.props.navigation.dispatch(NavigationActions.reset({
-            index: 0,
-            actions: [
-              NavigationActions.navigate({
-                routeName: 'Login',
-              }),
-            ],
-          }));
+          this.cleanAndLogout();
         },
       },
     ]);
+  }
+
+  cleanAndLogout = () => {
+    const {
+      setAuthenticateResult, setDestinationLibrary, setPaths, setParentDir, setLibraries,
+    } = this.props;
+    setAuthenticateResult(null);
+    setDestinationLibrary(null);
+    setPaths([]);
+    setParentDir(null);
+    setLibraries([]);
+    storePhotos([]);
+    storeOcrTextFile([]);
+    storeCurrentState('none');
+    this.props.navigation.dispatch(NavigationActions.reset({
+      index: 0,
+      actions: [
+        NavigationActions.navigate({
+          routeName: 'Login',
+        }),
+      ],
+    }));
   }
 
   destination = () => {
@@ -461,11 +469,14 @@ class CameraScreen extends React.Component {
   }
 
   showFolderNotExistAlert = () => {
+    alertPresent = true;
+
     Alert.alert(
       'Upload not successful', "Couldn't find selected folder, please choose another one", [
         {
           text: 'change',
           onPress: () => {
+            alertPresent = false;
             this.props.clearUploadError();
             this.props.navigation.dispatch(NavigationActions.reset({
               index: 0,
@@ -579,8 +590,23 @@ class CameraScreen extends React.Component {
   );
 
   render() {
-    if (this.props.uploadError && this.props.uploadError.length > 0) {
-      this.showFolderNotExistAlert();
+    if (!alertPresent) {
+      if (this.props.loginState && this.props.loginState === 'auth failed') {
+        alertPresent = true;
+        Alert.alert('Authentication', 'Authentication Expired, please login again.', [
+          {
+            text: 'OK',
+            onPress: () => {
+              this.props.setLoginState('');
+              this.cleanAndLogout();
+              alertPresent = false;
+            },
+          },
+        ]);
+      }
+      if (this.props.uploadError && this.props.uploadError.length > 0) {
+        this.showFolderNotExistAlert();
+      }
     }
     return (
       <SafeAreaView style={styles.container}>
@@ -629,6 +655,9 @@ CameraScreen.propTypes = {
   nav: PropTypes.object.isRequired,
   uploadError: PropTypes.string.isRequired,
   clearUploadError: PropTypes.func.isRequired,
+  loginState: PropTypes.string.isRequired,
+  setLoginState: PropTypes.func.isRequired,
+  pingServer: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -638,6 +667,7 @@ const mapStateToProps = state => ({
   paths: state.library.paths,
   netOption: state.upload.netOption,
   uploadError: state.upload.error,
+  loginState: state.accounts.loginState,
   nav: state.nav,
 });
 
@@ -654,6 +684,8 @@ const mapDispatchToProps = dispatch => ({
   setAuthenticateResult: result => dispatch(AccountsActions.setAuthenticateResult(result)),
   setNetOption: netOption => dispatch(UploadActions.setNetOption(netOption)),
   clearUploadError: () => dispatch(UploadActions.uploadError('')),
+  setLoginState: state => dispatch(AccountsActions.setLoginState(state)),
+  pingServer: () => dispatch(AccountsActions.pingServer()),
 });
 
 export default connect(

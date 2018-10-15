@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import { getUploadLink, uploadRNFB } from '../api/UploadApi';
 import UploadActions from '../redux/UploadRedux';
+import AccountsActions from '../redux/AccountsRedux';
 import {
   retrievePhotos,
   storePhotos,
@@ -29,8 +30,11 @@ export function* uploadFile(action) {
         yield call(uploadOcrTextFile, authenticateResult, link, photo, parentDir);
       }
     }
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
+    if (err.message === '401') {
+      yield put(AccountsActions.setLoginState('auth failed'));
+    }
   }
 }
 
@@ -163,5 +167,8 @@ export function* syncUploadProgress(action) {
     storeOcrTextFile(waitingTextFileList);
   } catch (e) {
     console.log(e);
+    if (e.message === '401') {
+      yield put(AccountsActions.setLoginState('auth failed'));
+    }
   }
 }
