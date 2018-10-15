@@ -63,6 +63,8 @@ const iosOptions = {
   forceUpOrientation: true,
 };
 
+let alertPresent = false;
+
 class CameraScreen extends React.Component {
   state = {
     hasFlash: false,
@@ -83,7 +85,6 @@ class CameraScreen extends React.Component {
     ocrEnable: false,
     ocrScanText: '',
     dateTime: 0,
-    alertPresent: false,
   };
 
   componentWillMount() {
@@ -468,17 +469,14 @@ class CameraScreen extends React.Component {
   }
 
   showFolderNotExistAlert = () => {
-    this.setState({
-      alertPresent: true,
-    });
+    alertPresent = true;
+
     Alert.alert(
       'Upload not successful', "Couldn't find selected folder, please choose another one", [
         {
           text: 'change',
           onPress: () => {
-            this.setState({
-              alertPresent: false,
-            });
+            alertPresent = false;
             this.props.clearUploadError();
             this.props.navigation.dispatch(NavigationActions.reset({
               index: 0,
@@ -592,20 +590,16 @@ class CameraScreen extends React.Component {
   );
 
   render() {
-    if (!this.state.alertPresent) {
+    if (!alertPresent) {
       if (this.props.loginState && this.props.loginState === 'auth failed') {
-        this.setState({
-          alertPresent: true,
-        });
+        alertPresent = true;
         Alert.alert('Authentication', 'Authentication Expired, please login again.', [
           {
             text: 'OK',
             onPress: () => {
               this.props.setLoginState('');
               this.cleanAndLogout();
-              this.setState({
-                alertPresent: false,
-              });
+              alertPresent = false;
             },
           },
         ]);
