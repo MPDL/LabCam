@@ -59,9 +59,22 @@ class KeeperOptionModal extends React.Component {
     }
 
     const rootStyle = Platform.OS === 'android'
-    ? styles.root
-    : isIphoneX() ? [styles.root, {marginTop: 80}]
-      : [styles.root, {marginTop: 60}];
+      ? styles.root
+      : isIphoneX() ? [styles.root, { marginTop: 80 }]
+        : [styles.root, { marginTop: 60 }];
+
+    let serverName = 'KEEPER';
+    switch (this.props.server) {
+      case 'https://keeper.mpdl.mpg.de/api2/':
+        serverName = 'to KEEPER';
+        break;
+      case 'https://seacloud.cc/api2/':
+        serverName = 'to seacloud';
+        break;
+      default:
+        serverName = '';
+        break;
+    }
 
     return (
       <SafeAreaView style={rootStyle}>
@@ -74,14 +87,14 @@ class KeeperOptionModal extends React.Component {
         />
         <View style={styles.container}>
           <View style={styles.libraryRow}>
-            <SmallText style={styles.folderOptionText}>Upload photos to KEEPER</SmallText>
+            <SmallText style={styles.folderOptionText}>{`Upload photos ${serverName}`}</SmallText>
             <SmallText style={styles.selectedLibrary} onPress={this.props.onSelectLibrary}>
               {destinationText}
               <Icon name="arrow-drop-down" size={16} />
             </SmallText>
           </View>
           <View style={styles.networkRow}>
-            <SmallText style={styles.networkOptionText}>Upload photos to KEEPER via</SmallText>
+            <SmallText style={styles.networkOptionText}>{`Upload photos ${serverName} via`}</SmallText>
             <SmallText style={styles.networkOption} onPress={this.toggleNetwork}>
               {`${this.props.netOption} `}
               <Icon name="arrow-drop-down" size={16} />
@@ -102,6 +115,7 @@ KeeperOptionModal.propTypes = {
   logout: PropTypes.func.isRequired,
   setNetOption: PropTypes.func.isRequired,
   netOption: PropTypes.string.isRequired,
+  server: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -165,6 +179,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => ({
   netOption: state.upload.netOption,
+  server: state.accounts.server,
 });
 
 const mapDispatchToProps = dispatch => ({

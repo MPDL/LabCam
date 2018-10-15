@@ -11,9 +11,10 @@ class Server extends Component {
     this.props = props;
 
     this.state = {
-      // server: 'https://keeper.mpdl.mpg.de',
       category: 'keeper',
     };
+
+    this.props.setServer('https://keeper.mpdl.mpg.de/api2/');
   }
 
   selectServer = category => () => {
