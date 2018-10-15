@@ -8,6 +8,7 @@ const { Types, Creators } = createActions({
   logout: null,
   setLoginState: ['state'],
   setServer: ['server'],
+  pingServer: null,
 });
 
 export const AccountsTypes = Types;

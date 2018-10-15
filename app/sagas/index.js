@@ -10,7 +10,7 @@ import { LibraryTypes } from '../redux/LibraryRedux';
 /* ------------- Sagas ------------- */
 
 import { startup } from './StartupSagas';
-import { authenticateAccount } from './AccountsSagas';
+import { authenticateAccount, pingServer } from './AccountsSagas';
 import { uploadFile, batchUpload, syncUploadProgress } from './UploadSagas';
 import { fetchLibrariesSaga, fetchDirectoriesSaga, selectDirectoriesSaga, recursiveFetchDirectoriesSaga } from './LibrarySagas';
 
@@ -20,6 +20,7 @@ export default function* rootSaga() {
   yield all([
     takeLatest(StartupTypes.STARTUP, startup),
     takeLatest(AccountsTypes.AUTHENTICATE_ACCOUNT, authenticateAccount),
+    takeLatest(AccountsTypes.PING_SERVER, pingServer),
     takeEvery(UploadTypes.UPLOAD_FILE, uploadFile),
     takeLatest(UploadTypes.BATCH_UPLOAD, batchUpload),
     takeLatest(UploadTypes.SYNC_UPLOAD_PROGRESS, syncUploadProgress),
