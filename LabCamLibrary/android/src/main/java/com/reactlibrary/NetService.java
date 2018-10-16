@@ -49,6 +49,7 @@ public class NetService extends JobService {
     String repo;
     String parentDir;
     String uploadLink;
+    String netOption;
     List<DataItem> photos;
     List<DataItem> textFiles;
 
@@ -69,8 +70,17 @@ public class NetService extends JobService {
 
         String uploadError = getUploadError();
         if (uploadError == null || uploadError.equalsIgnoreCase("")){
-            preProcess();
-            getUploadLink();
+
+            if (Connectivity.isConnectedMobile(this)) {
+                netOption = getNetOption();
+                if (netOption.equalsIgnoreCase("Cellular")) {
+                    preProcess();
+                    getUploadLink();
+                }
+            } else if (Connectivity.isConnectedWifi(this)) {
+                preProcess();
+                getUploadLink();
+            }
         }
         return false;
     }
@@ -212,6 +222,18 @@ public class NetService extends JobService {
         }
     }
 
+    public String getNetOption() {
+        String uploadStr = query("reduxPersist:upload");
+        try {
+            JSONObject obj = new JSONObject(uploadStr);
+            String netOption = obj.getString("netOption");
+            return netOption;
+        } catch (Throwable t) {
+            Log.e("uploadStr", "Could not parse malformed JSON: \"" + uploadStr + "\"");
+        }
+        return "";
+    }
+
     public String getCredential() {
         String accountsStr = query("reduxPersist:accounts");
         try {
@@ -254,7 +276,6 @@ public class NetService extends JobService {
     public String getUploadError() {
         String uploadStr = "";
         uploadStr = query("uploadError");
-        Log.e("uploadStr", uploadStr+"?");
         return uploadStr;
     }
 
