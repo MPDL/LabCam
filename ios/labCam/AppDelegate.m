@@ -244,6 +244,95 @@
     NSString *errorText = [NSString stringWithFormat:@"Failed to fetch PHAsset with local identifier %@ with no error message.", contentUri];
     NSMutableDictionary* details = [NSMutableDictionary dictionary];
     [details setValue:errorText forKey:NSLocalizedDescriptionKey];
+    // remove mdfile, setMds,
+    RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
+    [self getMdFiles: storage :^(NSDictionary* data,NSError* error){
+      if(data){
+        NSMutableArray *newArr = [[NSMutableArray alloc] init];
+        for (id item in data) {
+          NSString * name = [item valueForKeyPath: @"fileName"];
+          NSString * fileId = [fileName substringToIndex: [fileName rangeOfString:@"."].location];
+          NSLog(@"fileId: %@", fileId);
+          if ([name rangeOfString:fileId].location == NSNotFound) {
+            [newArr addObject:item];
+          }
+        }
+        
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:newArr
+                                                           options:0 // Pass 0 if you don't care about the readability of the generated string
+                                                             error:&error];
+        
+        if (!jsonData) {
+          NSLog(@"Got an error: %@", error);
+        } else {
+          NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+          NSLog(@"%@", jsonString);
+          
+          RCTResponseSenderBlock setMdcompletion = ^(NSArray *response) {
+          };
+          
+          [self setMds:storage :jsonString :setMdcompletion];
+        }
+      }else{
+        //handle error
+        NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
+      }
+    }];
+
+    // remove photo, getPhoto, setPhoto
+    [self getPhotos: storage :^(NSDictionary* data,NSError* error){
+      if(data){
+        NSMutableArray *newArr = [[NSMutableArray alloc] init];
+        for (id item in data) {
+          NSString * name = [item valueForKeyPath: @"fileName"];
+          if (![name isEqualToString:fileName]) {
+            [newArr addObject:item];
+          }
+        }
+        
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:newArr
+                                                           options:0 // Pass 0 if you don't care about the readability of the generated string
+                                                             error:&error];
+        
+        if (! jsonData) {
+          NSLog(@"Got an error: %@", error);
+        } else {
+          NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+          NSLog(@"%@", jsonString);
+          
+          RCTResponseSenderBlock setPhotoCompletion = ^(NSArray *response) {
+            if ([newArr count] == 0) {
+              [self getMdFiles: storage :^(NSDictionary* data,NSError* error){
+                if(data && [data count]>0){
+                  for (id item in data) {
+                    NSString * fileName = [item valueForKeyPath: @"fileName"];
+                    NSString * text = [item valueForKeyPath: @"text"];
+                    NSLog(@"fileName : %@", fileName);
+                    NSLog(@"text : %@", text);
+                    [self uploadMdFile :fileName :text :0];
+                    break;
+                  }
+                }else{
+                  //handle error
+                  UIApplication  *app = [UIApplication sharedApplication];
+                  [app endBackgroundTask: bgTask];
+                  NSLog(@"endBackgroundTask");
+                  NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
+                }
+              }];
+            } else {
+              [self uploadPhoto:[[newArr objectAtIndex:0] valueForKeyPath: @"fileName"] :[[newArr objectAtIndex:0] valueForKeyPath: @"contentUri"] :bgTask];
+            }
+          };
+          [self setPhotos:storage :jsonString :setPhotoCompletion];
+        }
+      }else{
+        //handle error
+        NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
+      }
+    }];
     return;
   }
   
@@ -258,7 +347,7 @@
       NSLog(@"requestImageDataForAsset returned info(%@)", info);
       data = [NSData dataWithData:imageData];
       NSString *string = [NSByteCountFormatter stringFromByteCount:data.length countStyle:NSByteCountFormatterCountStyleBinary];
-      NSLog(@" size: %@", string);
+      NSLog(@" image size: %@", string);
       
       NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:_uploadLink parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         [formData appendPartWithFormData:[_parentDir dataUsingEncoding:NSUTF8StringEncoding] name:@"parent_dir"];
