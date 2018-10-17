@@ -21,8 +21,10 @@ import com.reactlibrary.net.repository.UploadRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -104,6 +106,7 @@ public class NetService extends JobService {
 
     private void uploadPhotos() {
         photos = retrieveItems("photos");
+        textFiles = retrieveItems("md");
 
         if (photos!=null && photos.size()>0) {
             uploadNextItem(photos.get(0));
@@ -124,6 +127,43 @@ public class NetService extends JobService {
         String getContentUri = dataItem.getContentUri();
         if (getContentUri.startsWith("content:") || getContentUri.startsWith("file:")) {
             getContentUri = MultipartUtil.getImageRealPath(this.getContentResolver(), Uri.parse(getContentUri), null);
+        }
+
+        // delete ocr when photo not exist
+        File file = new File(getContentUri);
+        if (file.length() == 0) {
+            String fileName = dataItem.getFileName().substring(0, dataItem.getFileName().lastIndexOf('.'));
+
+            if (dataItem.getFileName().contains(".md")) {
+                textFiles.remove(dataItem);
+                write("md", dataItemsToJson(textFiles));
+                textFiles = retrieveItems("md");
+                if (textFiles !=null && textFiles.size()>0) {
+                    uploadNextItem(textFiles.get(0));
+                }
+            } else {
+                photos.remove(dataItem);
+                write("photos", dataItemsToJson(photos));
+
+                if (textFiles.size() > 0) {
+                    Iterator<DataItem> dataItemIterator = textFiles.iterator();
+                    while(dataItemIterator.hasNext()) {
+                        DataItem textFile = dataItemIterator.next();
+                        if (textFile.getFileName().contains(fileName)) {
+                            Log.e("checkDelete", textFile.getFileName());
+                            dataItemIterator.remove();
+                            write("md", dataItemsToJson(textFiles));
+                        }
+                    }
+                }
+
+                photos = retrieveItems("photos");
+                if (photos != null && photos.size() > 0) {
+                    uploadNextItem(photos.get(0));
+                } else {
+                    uploadTextFiles();
+                }
+            }
         }
 
         Call<ResponseBody> call = uploadRepository.uploadItem(credential, MultipartUtil.prepareFilePart("file", dataItem.getFileName(), getContentUri),

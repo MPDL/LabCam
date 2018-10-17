@@ -23,7 +23,6 @@ export function* uploadFile(action) {
   try {
     const link = yield call(getUploadLink, destinationLibrary.id, server, authenticateResult);
     if (link) {
-      console.log(link);
       if (photo.fileName.includes('.jpg')) {
         yield call(uploadPhoto, authenticateResult, link, photo, parentDir);
       } else if (photo.fileName.includes('.md')) {
@@ -38,7 +37,7 @@ export function* uploadFile(action) {
   }
 }
 
-function* uploadPhoto(authenticateResult, link, photo, parentDir) {
+function* uploadPhoto(authenticateResult, link, photo, parentDir, isBatchUpload = 0) {
   try {
     const uploadImgResult = yield call(
       uploadRNFB,
@@ -49,13 +48,38 @@ function* uploadPhoto(authenticateResult, link, photo, parentDir) {
       parentDir,
     );
     if (uploadImgResult) {
-      console.log(`${photo.fileName} is uploaded`);
-      console.log(uploadImgResult);
-      const photos = yield retrievePhotos();
-      yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
-      console.log(`${photos.length} photos left`);
-      if (Platform.OS === 'android') {
-        showNotification();
+      if (uploadImgResult === 200) {
+        console.log(`${photo.fileName} is uploaded`);
+        console.log(uploadImgResult);
+        const photos = yield retrievePhotos();
+        yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
+        console.log(`${photos.length} photos left`);
+        if (Platform.OS === 'android') {
+          showNotification();
+        }
+      } else if (uploadImgResult.includes('No file')) {
+        const fileStr = photo.fileName.substring(0, photo.fileName.indexOf('.'));
+        const photos = yield retrievePhotos();
+        yield storePhotos(photos.filter(e => e.contentUri !== photo.contentUri));
+        const mdFiles = yield retrieveOcrTextFile();
+        yield storeOcrTextFile(mdFiles.filter(e => !e.fileName.includes(fileStr)));
+      }
+
+      if (isBatchUpload) {
+        const leftPhotos = yield retrievePhotos();
+        if (leftPhotos.length > 0) {
+          yield call(uploadPhoto, authenticateResult, link, leftPhotos[0], parentDir, 1);
+        } else {
+          const mdFiles = yield retrieveOcrTextFile();
+          if (mdFiles && mdFiles.length > 0) {
+            for (let i = 0; i < mdFiles.length; i += 1) {
+              const { error } = yield select(state => state.upload);
+              if (error === '') {
+                yield put(UploadActions.uploadFile(mdFiles[i]));
+              } else break;
+            }
+          }
+        }
       }
     }
   } catch (err) {
@@ -122,23 +146,17 @@ export function* batchUpload(action) {
     const photos = yield retrievePhotos();
     const waitingPhotoList = photos.filter(element => !files.map(file => file.name).includes(element.fileName));
     storePhotos(waitingPhotoList);
-    for (let i = 0; i < waitingPhotoList.length; i += 1) {
-      const { error } = yield select(state => state.upload);
-      console.log(`error:${error}`);
-      if (error === '') {
-        yield put(UploadActions.uploadFile(waitingPhotoList[i]));
-        yield call(delay, 1500);
-      } else break;
-    }
 
     const mdFiles = yield retrieveOcrTextFile();
     const waitingTextFileList = mdFiles.filter(element => !files.map(file => file.name).includes(element.fileName));
     storeOcrTextFile(waitingTextFileList);
-    for (let i = 0; i < waitingTextFileList.length; i += 1) {
+
+    const link = yield call(getUploadLink, destinationLibrary.id, server, authenticateResult);
+    if (link && photos.length > 0) {
       const { error } = yield select(state => state.upload);
       if (error === '') {
-        yield put(UploadActions.uploadFile(waitingTextFileList[i]));
-      } else break;
+        yield call(uploadPhoto, authenticateResult, link, photos[0], parentDir, 1);
+      }
     }
   } catch (e) {
     console.log(e);

@@ -1,6 +1,4 @@
 import RNFetchBlob from 'react-native-fetch-blob';
-import { Alert } from 'react-native';
-import { NavigationActions } from 'react-navigation';
 
 export const getUploadLink = (repo, server, credentials) =>
   fetch(`${server}repos/${repo}/upload-link/`, {
@@ -77,6 +75,8 @@ export const uploadRNFB = (credentials, link, photo, photoName, parentDir) => {
       console.log(response);
       if (response.respInfo && response.respInfo.status === 200) {
         return 200;
+      } else if (response.data.includes('No file')) {
+        return response.data;
       }
       return Promise.reject(new Error(response.data));
     });
