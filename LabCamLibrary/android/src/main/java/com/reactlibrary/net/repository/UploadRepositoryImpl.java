@@ -21,8 +21,9 @@ public class UploadRepositoryImpl implements UploadRepository{
     }
 
     @Override
-    public Call<ResponseBody> uploadItem(String token, MultipartBody.Part file, MultipartBody.Part parentDir, String link) {
-        return RetrofitFactory.getInstance().create(UploadApi.class).uploadItem(token, file, parentDir, link);
+    public Call<ResponseBody> uploadItem(String token, MultipartBody.Part file, MultipartBody.Part parentDir, MultipartBody.Part replace,
+                                         String link) {
+        return RetrofitFactory.getInstance().create(UploadApi.class).uploadItem(token, file, parentDir, replace, link);
     }
 
     @Override

@@ -17,11 +17,12 @@ import retrofit2.http.Path;
  */
 public interface UploadApi {
     @Multipart
-    @POST("seafhttp/upload-api/{link}")
+    @POST("/upload-api/{link}")
     Call<ResponseBody> uploadItem(
             @Header("Authorization") String token,
             @Part MultipartBody.Part file,
             @Part MultipartBody.Part parentDir,
+            @Part MultipartBody.Part replace,
             @Path("link") String link
     );
 

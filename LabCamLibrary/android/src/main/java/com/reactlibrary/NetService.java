@@ -167,7 +167,7 @@ public class NetService extends JobService {
         }
 
         Call<ResponseBody> call = uploadRepository.uploadItem(credential, MultipartUtil.prepareFilePart("file", dataItem.getFileName(), getContentUri),
-                MultipartUtil.addTextPart( "parent_dir", parentDir), uploadLink);
+                MultipartUtil.addTextPart( "parent_dir", parentDir),  MultipartUtil.addTextPart( "replace", "1"), uploadLink);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

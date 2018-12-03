@@ -14,6 +14,7 @@ public interface UploadRepository {
             String token,
             MultipartBody.Part file,
             MultipartBody.Part parentDir,
+            MultipartBody.Part replace,
             String link
     );
 
