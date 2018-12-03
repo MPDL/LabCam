@@ -52,10 +52,10 @@ export const uploadRNFB = (credentials, link, photo, photoName, parentDir) => {
       name: 'parent_dir',
       data: parentDir,
     },
-    // {
-    //   name: 'replace',
-    //   data: '1',
-    // },
+    {
+      name: 'replace',
+      data: '1',
+    },
   ];
 
   return RNFetchBlob.fetch(
