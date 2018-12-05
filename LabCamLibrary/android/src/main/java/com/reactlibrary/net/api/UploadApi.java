@@ -17,7 +17,7 @@ import retrofit2.http.Path;
  */
 public interface UploadApi {
     @Multipart
-    @POST("/upload-api/{link}")
+    @POST("seafhttp/upload-api/{link}")
     Call<ResponseBody> uploadItem(
             @Header("Authorization") String token,
             @Part MultipartBody.Part file,
