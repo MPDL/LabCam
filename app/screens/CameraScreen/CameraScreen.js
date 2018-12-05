@@ -118,6 +118,10 @@ class CameraScreen extends React.Component {
   }
 
   onSelectLibrary = () => {
+    this.setState({
+      keeperOptionVisible: false,
+    });
+
     this.goBack();
   };
 
@@ -292,6 +296,7 @@ class CameraScreen extends React.Component {
     this.setState({
       countClick: this.state.countClick + 1,
       isCameraReady: false,
+      keeperOptionVisible: false,
     });
 
     const options = Platform.OS === 'android' ? androidOptions : iosOptions;
