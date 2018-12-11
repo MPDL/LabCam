@@ -26,6 +26,7 @@
 @property (strong, atomic) NSMutableString *uploadLink;
 @property (strong, atomic) NSMutableString *netOption;
 @property (strong, atomic) NSMutableString *uploadError;
+@property (atomic, assign) BOOL timeIsUp;
 @end
 
 @implementation AppDelegate
@@ -73,16 +74,18 @@
 
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
    NSLog(@"performFetchWithCompletionHandler");
-
+  self.timeIsUp = NO;
+  
   RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
   [self getUploadError:storage];
-
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_SEC),
+  
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC),
                  dispatch_get_main_queue(), ^{
                    // Check result of your operation and call completion block with the result
                    NSLog(@"performFetchWithCompletionHandler completionHandler");
                    completionHandler(UIBackgroundFetchResultNewData);
-    });
+                   self.timeIsUp = YES;
+                 });
 }
 
 #pragma --------------------------------------------------------------------------------------------
@@ -323,7 +326,9 @@
                 }
               }];
             } else {
-              [self uploadPhoto:[[newArr objectAtIndex:0] valueForKeyPath: @"fileName"] :[[newArr objectAtIndex:0] valueForKeyPath: @"contentUri"] :bgTask];
+              if (!self.timeIsUp) {
+                [self uploadPhoto:[[newArr objectAtIndex:0] valueForKeyPath: @"fileName"] :[[newArr objectAtIndex:0] valueForKeyPath: @"contentUri"] :bgTask];
+              }
             }
           };
           [self setPhotos:storage :jsonString :setPhotoCompletion];
@@ -351,7 +356,7 @@
       
       NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:_uploadLink parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         [formData appendPartWithFormData:[_parentDir dataUsingEncoding:NSUTF8StringEncoding] name:@"parent_dir"];
-//        [formData appendPartWithFormData:[@"1" dataUsingEncoding:NSUTF8StringEncoding] name:@"replace"];
+        [formData appendPartWithFormData:[@"1" dataUsingEncoding:NSUTF8StringEncoding] name:@"replace"];
         [formData appendPartWithFileData:imageData name:@"file" fileName:fileName mimeType:@"image/jpeg"];
         
       } error:nil];
@@ -427,7 +432,9 @@
                                     }
                                   }];
                                 } else {
-                                  [self uploadPhoto:[[newArr objectAtIndex:0] valueForKeyPath: @"fileName"] :[[newArr objectAtIndex:0] valueForKeyPath: @"contentUri"] :bgTask];
+                                  if (!self.timeIsUp) {
+                                    [self uploadPhoto:[[newArr objectAtIndex:0] valueForKeyPath: @"fileName"] :[[newArr objectAtIndex:0] valueForKeyPath: @"contentUri"] :bgTask];
+                                  }
                                 }
                               };
                               [self setPhotos:storage :jsonString :rnCompletion];
@@ -481,7 +488,7 @@
   
   NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:_uploadLink parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
     [formData appendPartWithFormData:[_parentDir dataUsingEncoding:NSUTF8StringEncoding] name:@"parent_dir"];
-//    [formData appendPartWithFormData:[@"1" dataUsingEncoding:NSUTF8StringEncoding] name:@"replace"];
+    [formData appendPartWithFormData:[@"1" dataUsingEncoding:NSUTF8StringEncoding] name:@"replace"];
     [formData appendPartWithFileData: data name:@"file" fileName:fileName mimeType:@"text/markdown"];
     
   } error:nil];

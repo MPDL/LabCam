@@ -15,7 +15,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleVersion</key>
-	<string>17</string>
+	<string>19</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -27,7 +27,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>LabCam requires to access your Microphone for videos recording. These can also be configured in Settings.</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.7</string>
+	<string>1.1.9</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
