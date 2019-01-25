@@ -35,8 +35,8 @@
 {
   NSURL *jsCodeLocation;
 
-  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-//  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+//  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"LabCam"
@@ -179,36 +179,38 @@
 
 - (void)getUploadLink :(UIBackgroundTaskIdentifier) bgTask
 {
-  AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc]initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-  manager.requestSerializer = [AFJSONRequestSerializer serializer];
-  manager.responseSerializer = [AFJSONResponseSerializer serializerWithReadingOptions:NSJSONReadingAllowFragments];
-  [manager.requestSerializer setValue:_credential forHTTPHeaderField:@"Authorization"];
-  
-  [manager GET:[NSString stringWithFormat:@"%@/%@/%@", @"https://keeper.mpdl.mpg.de/api2/repos", _repo, @"upload-link/"]
-    parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
-    NSLog(@"JSON: %@", responseObject);
-    _uploadLink = responseObject;
-    RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
-    [self getPhotos: storage :^(NSDictionary* data,NSError* error){
-      if(data){
-        for (id item in data) {
-          NSString * fileName = [item valueForKeyPath: @"fileName"];
-          NSString * contentUri = [item valueForKeyPath: @"contentUri"];
-          NSString * text = [item valueForKeyPath:@"text"];
-          NSLog(@"fileName : %@", fileName);
-          NSLog(@"text : %@", text);
-          [self uploadPhoto:fileName :contentUri :bgTask];
-          break;
+  if ([_credential length] != 0){
+    AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc]initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    manager.responseSerializer = [AFJSONResponseSerializer serializerWithReadingOptions:NSJSONReadingAllowFragments];
+    [manager.requestSerializer setValue:_credential forHTTPHeaderField:@"Authorization"];
+    
+    [manager GET:[NSString stringWithFormat:@"%@/%@/%@", @"https://keeper.mpdl.mpg.de/api2/repos", _repo, @"upload-link/"]
+      parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
+      NSLog(@"JSON: %@", responseObject);
+      _uploadLink = responseObject;
+      RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
+      [self getPhotos: storage :^(NSDictionary* data,NSError* error){
+        if(data){
+          for (id item in data) {
+            NSString * fileName = [item valueForKeyPath: @"fileName"];
+            NSString * contentUri = [item valueForKeyPath: @"contentUri"];
+            NSString * text = [item valueForKeyPath:@"text"];
+            NSLog(@"fileName : %@", fileName);
+            NSLog(@"text : %@", text);
+            [self uploadPhoto:fileName :contentUri :bgTask];
+            break;
+          }
+        }else{
+          //handle error
+          NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
         }
-      }else{
-        //handle error
-        NSLog(@"JSON Parsing Error: %@",error.localizedDescription);
       }
-    }
-     ];
-  } failure:^(NSURLSessionTask *operation, NSError *error) {
-    NSLog(@"Error: %@", error);
-  }];
+       ];
+    } failure:^(NSURLSessionTask *operation, NSError *error) {
+      NSLog(@"Error: %@", error);
+    }];
+  }
 }
 
 #pragma --------------------------------------------------------------------------------------------
@@ -516,8 +518,8 @@
                   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
                   NSLog(@"response status code: %ld", (long)[httpResponse statusCode]);
                   if ((long)[httpResponse statusCode] == 200) {
-                    [self showNotifcation :@"File Uploaded"];
-                    
+                   // [self showNotifcation :@"File Uploaded"];
+
                     RCTAsyncLocalStorage *storage = [[RCTAsyncLocalStorage alloc] init];
                     [self getMdFiles: storage :^(NSDictionary* data,NSError* error){
                       if(data){
