@@ -13,6 +13,7 @@ import {
   AppState,
   Platform,
   BackHandler,
+  Dimensions,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { connect } from 'react-redux';
@@ -73,7 +74,7 @@ class CameraScreen extends React.Component {
     depth: 0,
     type: 'back',
     whiteBalance: 'auto',
-    ratio: '16:9',
+    ratio: '4:3',
     keeperOptionVisible: false,
     bigPicVisible: false,
     countClick: 0,
@@ -85,6 +86,7 @@ class CameraScreen extends React.Component {
     ocrEnable: false,
     ocrScanText: '',
     dateTime: 0,
+    isLandscape: false,
   };
 
   componentWillMount() {
@@ -116,6 +118,19 @@ class CameraScreen extends React.Component {
     AppState.removeEventListener('change', this._handleAppStateChange);
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
   }
+
+  onLayout = (e) => {
+    const { width, height } = Dimensions.get('window');
+    if (width > height) {
+      this.setState({
+        isLandscape: true,
+      });
+    } else {
+      this.setState({
+        isLandscape: false,
+      });
+    }
+  };
 
   onSelectLibrary = () => {
     this.setState({
@@ -156,7 +171,7 @@ class CameraScreen extends React.Component {
       });
     }
     return true;
-  }
+  };
 
   _handleConnectionChange = (connectionInfo) => {
     const { batchUpload, netOption } = this.props;
@@ -254,8 +269,10 @@ class CameraScreen extends React.Component {
         this.state.ocrEnable === false
           ? (d) => {
             if (Date.now() - this.state.dateTime > 3000) {
-              const ocrScanText = d.textBlocks.sort((a, b) => a.bounds.origin.y - b.bounds.origin.y).map(e => e.value).reduce((prev, cur) =>
-                `${prev}\n${cur}`, '');
+              const ocrScanText = d.textBlocks
+                .sort((a, b) => a.bounds.origin.y - b.bounds.origin.y)
+                .map(e => e.value)
+                .reduce((prev, cur) => `${prev}\n${cur}`, '');
               this.setState({
                 ocrScanText,
               });
@@ -290,7 +307,7 @@ class CameraScreen extends React.Component {
         bigPicVisible: !this.state.bigPicVisible,
       });
     }
-  }
+  };
 
   takePicture = async () => {
     this.setState({
@@ -380,7 +397,7 @@ class CameraScreen extends React.Component {
         contentUri,
       });
     }
-  }
+  };
 
   goBack = () => {
     const { nav } = this.props;
@@ -419,11 +436,15 @@ class CameraScreen extends React.Component {
         },
       },
     ]);
-  }
+  };
 
   cleanAndLogout = () => {
     const {
-      setAuthenticateResult, setDestinationLibrary, setPaths, setParentDir, setLibraries,
+      setAuthenticateResult,
+      setDestinationLibrary,
+      setPaths,
+      setParentDir,
+      setLibraries,
     } = this.props;
     setAuthenticateResult(null);
     setDestinationLibrary(null);
@@ -441,7 +462,7 @@ class CameraScreen extends React.Component {
         }),
       ],
     }));
-  }
+  };
 
   destination = () => {
     const { paths, destinationLibrary } = this.props;
@@ -457,7 +478,8 @@ class CameraScreen extends React.Component {
     if (Platform.OS === 'ios' && !keeperOptionVisible && !bigPicVisible) {
       switch (netOption) {
         case 'Wifi only':
-          if (netInfo && netInfo !== 'wifi' && netInfo !== 'unknown') { // 'unknown at init'
+          if (netInfo && netInfo !== 'wifi' && netInfo !== 'unknown') {
+            // 'unknown at init'
             return true;
           }
           break;
@@ -471,13 +493,15 @@ class CameraScreen extends React.Component {
       }
     }
     return false;
-  }
+  };
 
   showFolderNotExistAlert = () => {
     alertPresent = true;
 
     Alert.alert(
-      'Upload not successful', "Couldn't find selected folder, please choose another one", [
+      'Upload not successful',
+      "Couldn't find selected folder, please choose another one",
+      [
         {
           text: 'change',
           onPress: () => {
@@ -492,107 +516,124 @@ class CameraScreen extends React.Component {
               ],
             }));
           },
-        }],
+        },
+      ],
       { cancelable: false },
     );
-  }
+  };
 
   renderTopMenu = () => {
-    const OCRStyle = this.state.ocrEnable === false ?
-      [styles.photoHelper, { color: 'grey' }]
-      : [styles.photoHelper, { color: CamColors.green2 }];
+    const OCRStyle =
+      this.state.ocrEnable === false
+        ? [styles.photoHelper, { color: 'grey' }]
+        : [styles.photoHelper, { color: CamColors.green2 }];
+
+    const menuBarStyle =
+      this.state.isLandscape
+        ? styles.menuBarVertical
+        : styles.menuBar;
+
+    const cameraOptionStyle =
+      this.state.isLandscape
+        ? [styles.cameraOption, { flexDirection: 'column' }]
+        : [styles.cameraOption, { flexDirection: 'row' }];
     return (
-      <View style={styles.menuBar}>
+      <View style={menuBarStyle}>
         <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
           <MIcon name="menu" color="white" size={24} style={styles.topMenuIcon} />
         </TouchableOpacity>
 
-
-        <View style={styles.cameraOption}>
+        <View style={cameraOptionStyle}>
           {
             <TouchableOpacity onPress={this.toggleOcr}>
               <Text style={OCRStyle}>OCR</Text>
             </TouchableOpacity>
           }
-          {
-            this.state.hasFlash &&
+          {this.state.hasFlash && (
             <TouchableOpacity onPress={this.toggleFlash}>
-              <MIcon name={`flash-${this.state.flash}`} color="white" size={24} style={styles.topMenuIcon} />
+              <MIcon
+                name={`flash-${this.state.flash}`}
+                color="white"
+                size={24}
+                style={styles.topMenuIcon}
+              />
             </TouchableOpacity>
-          }
+          )}
         </View>
       </View>
     );
-  }
+  };
 
-  renderCamera = () => (
-    <RNCamera
-      ref={(ref) => {
-        this.camera = ref;
-      }}
-      style={{
-        flex: 1,
-      }}
-      type={this.state.type}
-      flashMode={this.state.flash}
-      autoFocus={this.state.autoFocus}
-      whiteBalance={this.state.whiteBalance}
-      ratio={this.state.ratio}
-      focusDepth={this.state.depth}
-      permissionDialogTitle="Permission to use camera"
-      permissionDialogMessage="We need your permission to use your camera phone"
-      onTextRecognized={this.state.ocrEnable}
-    >
-      <TouchableOpacity
-        style={{
-          flex: 1,
-          backgroundColor: 'transparent',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-        onPress={this.closeKeeperOption}
-      />
+  renderCameraButtons = () => {
+    const buttonsContainerStyle = !this.state.isLandscape
+      ? styles.cameraButton
+      : styles.cameraButtonVertical;
+    return (
       <View
-        style={{
-          height: 80,
-          backgroundColor: 'transparent',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          alignSelf: 'center',
-          width: '100%',
-        }}
+        style={buttonsContainerStyle}
       >
         <TouchableOpacity
-          style={[{ alignSelf: 'flex-end', marginBottom: 10 }]}
+          style={[{ alignSelf: 'center' }]}
           onPress={this.toggleBigPic}
         >
-          {this.state.lastPhotoUri === '' ?
+          {this.state.lastPhotoUri === '' ? (
             <View
               style={[styles.preview, { backgroundColor: CamColors.colorWithAlpha('white', 0.5) }]}
-            /> :
-            <Image
-              style={styles.preview}
-              source={{ uri: this.state.lastPhotoUri }}
-            />}
-
+            />
+          ) : (
+            <Image style={styles.preview} source={{ uri: this.state.lastPhotoUri }} />
+          )}
         </TouchableOpacity>
         <TouchableOpacity
-          style={[{ alignSelf: 'flex-end', marginBottom: 6 }]}
+          style={[{ alignSelf: 'center' }]}
           onPress={this.takePicture}
           disabled={!this.state.isCameraReady}
         >
           <Icon name="camera" color="white" size={24} style={styles.cameraIcon} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[{ alignSelf: 'flex-end', marginBottom: 6 }]}
+          style={[{ alignSelf: 'center' }]}
           onPress={this.toggleFacing}
         >
           <IIcon name="ios-reverse-camera" color="white" size={38} style={styles.flipIcon} />
         </TouchableOpacity>
-      </View >
-    </RNCamera>
-  );
+      </View>);
+  }
+
+  renderCamera = () => {
+    const { width, height } = Dimensions.get('window');
+    const cameraStyle = !this.state.isLandscape
+      ? [{ width: '100%', height: 4*width/3, alignSelf: 'center' }]
+      : [{ width: 4*height/3, height: '100%', alignSelf: 'center' }];
+    return (
+      <RNCamera
+        ref={(ref) => {
+          this.camera = ref;
+        }}
+        style={cameraStyle}
+        type={this.state.type}
+        flashMode={this.state.flash}
+        autoFocus={this.state.autoFocus}
+        whiteBalance={this.state.whiteBalance}
+        ratio={this.state.ratio}
+        focusDepth={this.state.depth}
+        permissionDialogTitle="Permission to use camera"
+        permissionDialogMessage="We need your permission to use your camera phone"
+        onTextRecognized={this.state.ocrEnable}
+      >
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={this.closeKeeperOption}
+        />
+      </RNCamera>
+    );
+  }
 
   render() {
     if (!alertPresent) {
@@ -613,31 +654,33 @@ class CameraScreen extends React.Component {
         this.showFolderNotExistAlert();
       }
     }
+
+    const containerStyle = this.state.isLandscape
+      ? [styles.container, { flexDirection: 'row' }]
+      : [styles.container, { paddingTop: StatusBar.currentHeight }];
+
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar translucent barStyle="light-content" />
+      <SafeAreaView style={containerStyle} onLayout={this.onLayout}>
+        <StatusBar translucent barStyle="light-content" hidden={this.state.isLandscape} />
         {this.renderTopMenu()}
-        {!this.state.ocrEnable && this.state.keeperOptionVisible && (
-          <KeeperOptionModal
-            libraries={this.props.libraries}
-            onSelectLibrary={this.onSelectLibrary}
-            destination={this.destination()}
-            logout={this.logout}
-          />
+        {!this.state.ocrEnable &&
+          this.state.keeperOptionVisible && (
+            <KeeperOptionModal
+              libraries={this.props.libraries}
+              onSelectLibrary={this.onSelectLibrary}
+              destination={this.destination()}
+              logout={this.logout}
+              isLandscape={this.state.isLandscape}
+            />
+          )}
+        {this.state.ocrEnable && (
+          <OcrModal ocrEnable={this.state.ocrEnable} ocrScanText={this.state.ocrScanText} isLandscape={this.state.isLandscape} />
         )}
-        {this.state.ocrEnable &&
-          <OcrModal
-            ocrEnable={this.state.ocrEnable}
-            ocrScanText={this.state.ocrScanText}
-          />
-        }
-        {this.state.bigPicVisible &&
-          <BigPicModal
-            toggleBigPic={this.toggleBigPic}
-            uri={this.state.lastPhotoUri}
-          />
-        }
+        {this.state.bigPicVisible && (
+          <BigPicModal toggleBigPic={this.toggleBigPic} uri={this.state.lastPhotoUri} />
+        )}
         {this.renderCamera()}
+        {this.renderCameraButtons()}
       </SafeAreaView>
     );
   }

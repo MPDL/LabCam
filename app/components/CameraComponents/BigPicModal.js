@@ -8,9 +8,12 @@ import { isIphoneX } from '../iphoneXHelper';
 class BigPicModal extends React.Component {
   render() {
     const { toggleBigPic, uri } = this.props;
-    const photoLayerStyle = Platform.OS === 'android'
-    ? styles.photoLayer
-    : isIphoneX() ? styles.photoLayerIosX : styles.photoLayerIos;
+    const photoLayerStyle =
+      Platform.OS === 'android'
+        ? styles.photoLayer
+        : isIphoneX()
+          ? styles.photoLayerIosX
+          : styles.photoLayerIos;
     return (
       <TouchableOpacity style={photoLayerStyle} onPress={toggleBigPic}>
         <Image style={styles.bigPic} source={{ uri }} />
@@ -74,6 +77,6 @@ const styles = StyleSheet.create({
   bigPic: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
 });

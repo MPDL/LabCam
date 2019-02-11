@@ -5,7 +5,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-    paddingTop: StatusBar.currentHeight,
+    // paddingTop: StatusBar.currentHeight,
   },
   navigation: {
     flex: 1,
@@ -24,11 +24,18 @@ const styles = StyleSheet.create({
     marginRight: 10,
     height: 40,
   },
-  keeperIcon: {
+  menuBarVertical: {
+    backgroundColor: 'transparent',
+    flexDirection: 'column-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+    width: 60,
   },
+  keeperIcon: {},
   cameraOption: {
-    flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center',
   },
   flipButton: {
     flex: 0.3,
@@ -75,6 +82,24 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 15,
     marginHorizontal: 8,
+  },
+  cameraButton: {
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    alignSelf: 'center',
+    width: '100%',
+    flex: 1,
+  },
+  cameraButtonVertical: {
+    backgroundColor: 'transparent',
+    flexDirection: 'column-reverse',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    alignSelf: 'center',
+    height: '100%',
+    flex: 1,
   },
 });
 

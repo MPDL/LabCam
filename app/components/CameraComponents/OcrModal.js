@@ -2,42 +2,52 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { SafeAreaView, View, ScrollView, Text, StatusBar, Dimensions, Platform, StyleSheet } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  ScrollView,
+  Text,
+  StatusBar,
+  Dimensions,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import CamColors from '../../common/CamColors';
 import { isIphoneX } from '../iphoneXHelper';
 
 class OcrModal extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLandscape: false,
-    };
-  }
-
-  onLayout = (e) => {
-    const { width, height } = Dimensions.get('window');
-    if (width > height) {
-      this.setState({
-        isLandscape: true,
-      });
-    } else {
-      this.setState({
-        isLandscape: false,
-      });
-    }
-  };
-
   render() {
-    const {
-      ocrScanText,
-    } = this.props;
+    const { ocrScanText } = this.props;
     const ocrResult = ocrScanText;
 
-    const ocrLayerStyle = Platform.OS === 'android'
-      ? styles.ocrLayer
-      : isIphoneX() ? this.state.isLandscape
-        ? [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 166 }] : [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 186 }]
-        : styles.ocrLayerIos;
+    const ocrAndroidStyle = this.props.isLandscape
+      ? [
+        styles.ocrLayerLandscape,
+        {
+          top: Dimensions.get('window').height / 10,
+          right: Dimensions.get('window').width - (Dimensions.get('window').height * 4) / 3 - 60,
+          bottom: Dimensions.get('window').height / 10,
+        },
+      ]
+      : [
+        styles.ocrLayer,
+        {
+          bottom:
+              (Dimensions.get('window').height * 11) / 10 -
+              (Dimensions.get('window').width * 4) / 3 -
+              40 -
+              StatusBar.currentHeight,
+          top: 40 + StatusBar.currentHeight + Dimensions.get('window').height / 10,
+        },
+      ];
+    const ocrLayerStyle =
+      Platform.OS === 'android'
+        ? ocrAndroidStyle
+        : isIphoneX()
+          ? this.props.isLandscape
+            ? [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 166 }]
+            : [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 186 }]
+          : styles.ocrLayerIos;
 
     return (
       <SafeAreaView style={ocrLayerStyle} onLayout={this.onLayout}>
@@ -59,6 +69,7 @@ class OcrModal extends React.Component {
 OcrModal.propTypes = {
   ocrEnable: PropTypes.any.isRequired,
   ocrScanText: PropTypes.string.isRequired,
+  isLandscape: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -71,10 +82,16 @@ export default connect(mapStateToProps)(OcrModal);
 const styles = StyleSheet.create({
   ocrLayer: {
     position: 'absolute',
-    top: 40 + StatusBar.currentHeight,
     left: 0,
     right: 0,
-    bottom: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 99,
+  },
+  ocrLayerLandscape: {
+    position: 'absolute',
+    left: 60,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',

@@ -2,7 +2,15 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { SafeAreaView, View, TouchableHighlight, StyleSheet, StatusBar, Platform } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  TouchableHighlight,
+  StyleSheet,
+  Platform,
+  Dimensions,
+  StatusBar,
+} from 'react-native';
 import Triangle from 'react-native-triangle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -58,10 +66,16 @@ class KeeperOptionModal extends React.Component {
       });
     }
 
-    const rootStyle = Platform.OS === 'android'
-    ? styles.root
-    : isIphoneX() ? [styles.root, {marginTop: 80}]
-      : [styles.root, {marginTop: 60}];
+    const androidRootStyle = this.props.isLandscape
+      ? [{ width: Dimensions.get('window').height }, styles.rootLandscape]
+      : styles.root;
+
+    const rootStyle =
+      Platform.OS === 'android'
+        ? androidRootStyle
+        : isIphoneX()
+          ? [styles.root, { marginTop: 80 }]
+          : [styles.root, { marginTop: 60 }];
 
     return (
       <SafeAreaView style={rootStyle}>
@@ -102,6 +116,7 @@ KeeperOptionModal.propTypes = {
   logout: PropTypes.func.isRequired,
   setNetOption: PropTypes.func.isRequired,
   netOption: PropTypes.string.isRequired,
+  isLandscape: PropTypes.bool.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -112,6 +127,13 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     zIndex: 99,
+  },
+  rootLandscape: {
+    position: 'absolute',
+    marginTop: 0,
+    height: '100%',
+    zIndex: 99,
+    transform: [{ rotate: '270deg' }, { translateY: 60 }],
   },
   triangle: {
     marginHorizontal: 20,
