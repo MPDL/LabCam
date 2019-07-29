@@ -54,9 +54,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 15,
   },
-  topMenuIcon: {
-    marginHorizontal: 16,
-  },
   cameraIcon: {
     backgroundColor: 'black',
     padding: 15,
@@ -90,7 +87,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     width: '100%',
-    flex: 1,
   },
   cameraButtonVertical: {
     backgroundColor: 'transparent',
@@ -99,7 +95,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     height: '100%',
-    flex: 1,
   },
 });
 

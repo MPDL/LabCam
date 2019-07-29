@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -121,15 +122,9 @@ class CameraScreen extends React.Component {
 
   onLayout = (e) => {
     const { width, height } = Dimensions.get('window');
-    if (width > height) {
-      this.setState({
-        isLandscape: true,
-      });
-    } else {
-      this.setState({
-        isLandscape: false,
-      });
-    }
+    this.setState({
+      isLandscape: width > height,
+    });
   };
 
   onSelectLibrary = () => {
@@ -537,10 +532,16 @@ class CameraScreen extends React.Component {
       this.state.isLandscape
         ? [styles.cameraOption, { flexDirection: 'column' }]
         : [styles.cameraOption, { flexDirection: 'row' }];
+
+    const topMenuIconStyle =
+      this.state.isLandscape
+        ? [{ marginVertical: 16 }]
+        : [{ marginHorizontal: 16 }];
+
     return (
       <View style={menuBarStyle}>
         <TouchableOpacity style={styles.keeperIcon} onPress={this.toggleKeeperOption}>
-          <MIcon name="menu" color="white" size={24} style={styles.topMenuIcon} />
+          <MIcon name="menu" color="white" size={24} style={topMenuIconStyle} />
         </TouchableOpacity>
 
         <View style={cameraOptionStyle}>
@@ -555,7 +556,7 @@ class CameraScreen extends React.Component {
                 name={`flash-${this.state.flash}`}
                 color="white"
                 size={24}
-                style={styles.topMenuIcon}
+                style={topMenuIconStyle}
               />
             </TouchableOpacity>
           )}
@@ -565,9 +566,13 @@ class CameraScreen extends React.Component {
   };
 
   renderCameraButtons = () => {
+    const { width, height } = Dimensions.get('window');
+    const standardRatio = ((height > 4*width/3) && !this.state.isLandscape)
+        || ((width > 4*height/3) && this.state.isLandscape);
+
     const buttonsContainerStyle = !this.state.isLandscape
-      ? styles.cameraButton
-      : styles.cameraButtonVertical;
+      ? standardRatio ? [styles.cameraButton, { flex: 1 }] : [styles.cameraButton, { height: 80 }]
+      : standardRatio ? [styles.cameraButtonVertical, { flex: 1 }] : [styles.cameraButtonVertical, { width: 80 }];
     return (
       <View
         style={buttonsContainerStyle}
@@ -602,36 +607,46 @@ class CameraScreen extends React.Component {
 
   renderCamera = () => {
     const { width, height } = Dimensions.get('window');
-    const cameraStyle = !this.state.isLandscape
+    const standardRatio = ((height > 4*width/3) && !this.state.isLandscape)
+        || ((width > 4*height/3) && this.state.isLandscape);
+
+    const standardCameraStyle = !this.state.isLandscape
       ? [{ width: '100%', height: 4*width/3, alignSelf: 'center' }]
       : [{ width: 4*height/3, height: '100%', alignSelf: 'center' }];
+
+    const cameraHeight = height - 120 - StatusBar.currentHeight;
+    const cameraWidth = width - 140;
+    const cameraStyle = !this.state.isLandscape
+      ? [{ width: 3*cameraHeight/4, height: cameraHeight, alignSelf: 'center' }]
+      : [{ width: cameraWidth, height:  3*cameraWidth/4, alignSelf: 'center' }];
+
     return (
-      <RNCamera
-        ref={(ref) => {
-          this.camera = ref;
-        }}
-        style={cameraStyle}
-        type={this.state.type}
-        flashMode={this.state.flash}
-        autoFocus={this.state.autoFocus}
-        whiteBalance={this.state.whiteBalance}
-        ratio={this.state.ratio}
-        focusDepth={this.state.depth}
-        permissionDialogTitle="Permission to use camera"
-        permissionDialogMessage="We need your permission to use your camera phone"
-        onTextRecognized={this.state.ocrEnable}
-      >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
+        <RNCamera
+          ref={(ref) => {
+            this.camera = ref;
           }}
-          onPress={this.closeKeeperOption}
-        />
-      </RNCamera>
+          style={standardRatio ? standardCameraStyle : cameraStyle}
+          type={this.state.type}
+          flashMode={this.state.flash}
+          autoFocus={this.state.autoFocus}
+          whiteBalance={this.state.whiteBalance}
+          ratio={this.state.ratio}
+          focusDepth={this.state.depth}
+          permissionDialogTitle="Permission to use camera"
+          permissionDialogMessage="We need your permission to use your camera phone"
+          onTextRecognized={this.state.ocrEnable}
+        >
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: 'transparent',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onPress={this.closeKeeperOption}
+          />
+        </RNCamera>
     );
   }
 

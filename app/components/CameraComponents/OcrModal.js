@@ -20,24 +20,31 @@ class OcrModal extends React.Component {
     const { ocrScanText } = this.props;
     const ocrResult = ocrScanText;
 
+    const { width, height } = Dimensions.get('window');
+    const standardRatio = ((height > 4*width/3) && !this.props.isLandscape)
+    || ((width > 4*height/3) && this.props.isLandscape);
+
     const ocrAndroidStyle = this.props.isLandscape
       ? [
         styles.ocrLayerLandscape,
         {
-          top: Dimensions.get('window').height / 10,
-          right: Dimensions.get('window').width - (Dimensions.get('window').height * 4) / 3 - 60,
-          bottom: Dimensions.get('window').height / 10,
+          top: height / 10,
+          right: standardRatio ? width - (height * 4) / 3 - 60 : 80,
+          bottom: height / 10,
         },
       ]
       : [
         styles.ocrLayer,
         {
+          left: standardRatio ? 0 : (width - 3 * (height - 120 - StatusBar.currentHeight) / 4) / 2,
+          right: standardRatio ? 0 : (width - 3 * (height - 120 - StatusBar.currentHeight) / 4) / 2,
           bottom:
-              (Dimensions.get('window').height * 11) / 10 -
-              (Dimensions.get('window').width * 4) / 3 -
+            standardRatio ? 
+              (height * 11) / 10 -
+              (width * 4) / 3 -
               40 -
-              StatusBar.currentHeight,
-          top: 40 + StatusBar.currentHeight + Dimensions.get('window').height / 10,
+              StatusBar.currentHeight : 80,
+          top: 40 + StatusBar.currentHeight + height / 10,
         },
       ];
     const ocrLayerStyle =
@@ -45,8 +52,8 @@ class OcrModal extends React.Component {
         ? ocrAndroidStyle
         : isIphoneX()
           ? this.props.isLandscape
-            ? [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 166 }]
-            : [styles.ocrLayerIosX, { height: Dimensions.get('window').height - 186 }]
+            ? [styles.ocrLayerIosX, { height: height - 166 }]
+            : [styles.ocrLayerIosX, { height: height - 186 }]
           : styles.ocrLayerIos;
 
     return (
