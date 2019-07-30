@@ -607,15 +607,17 @@ class CameraScreen extends React.Component {
 
   renderCamera = () => {
     const { width, height } = Dimensions.get('window');
-    const standardRatio = ((height > 4*width/3) && !this.state.isLandscape)
-        || ((width > 4*height/3) && this.state.isLandscape);
+
+    const cameraHeight = height - 120 - StatusBar.currentHeight;
+    const cameraWidth = width - 140;
+
+    const standardRatio = (cameraHeight > 4*width/3 && width < height)
+        || (cameraWidth > 4*height/3 && height > width);
 
     const standardCameraStyle = !this.state.isLandscape
       ? [{ width: '100%', height: 4*width/3, alignSelf: 'center' }]
       : [{ width: 4*height/3, height: '100%', alignSelf: 'center' }];
 
-    const cameraHeight = height - 120 - StatusBar.currentHeight;
-    const cameraWidth = width - 140;
     const cameraStyle = !this.state.isLandscape
       ? [{ width: 3*cameraHeight/4, height: cameraHeight, alignSelf: 'center' }]
       : [{ width: cameraWidth, height:  3*cameraWidth/4, alignSelf: 'center' }];

@@ -21,8 +21,8 @@ class OcrModal extends React.Component {
     const ocrResult = ocrScanText;
 
     const { width, height } = Dimensions.get('window');
-    const standardRatio = ((height > 4*width/3) && !this.props.isLandscape)
-    || ((width > 4*height/3) && this.props.isLandscape);
+    const standardRatio = (height - 4*width/3 > 140 && width < height)
+    || (width - 4*height/3 > 140 && height > width);
 
     const ocrAndroidStyle = this.props.isLandscape
       ? [
